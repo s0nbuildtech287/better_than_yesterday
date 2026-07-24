@@ -83,8 +83,8 @@ export default function HomePage() {
     try {
       setIsLoading(true);
       const [habitsRes, logsRes] = await Promise.all([
-        fetch('/api/habits'),
-        fetch(`/api/logs?date=${todayStr}`),
+        fetch('/api/habits', { cache: 'no-store' }),
+        fetch(`/api/logs?date=${todayStr}`, { cache: 'no-store' }),
       ]);
 
       const habitsData = await habitsRes.json();

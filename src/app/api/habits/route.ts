@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { format, subDays, addDays, differenceInDays } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const rawHabits = await prisma.habit.findMany({
@@ -74,10 +77,10 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ success: true, habits });
+    return NextResponse.json({ habits }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error fetching habits:', error);
-    return NextResponse.json({ success: true, habits: [] });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -92,51 +95,53 @@ export async function POST(request: Request) {
 
     const todayStr = format(new Date(), 'yyyy-MM-dd');
 
-    const newHabit = await prisma.habit.create({
+    const habit = await prisma.habit.create({
       data: {
         title,
-        description: description || '',
-        category: category || 'CUSTOM',
+        description,
+        category: category || 'SỨC KHỎE',
         icon: icon || 'Sparkles',
         timeOfDay: timeOfDay || 'ANYTIME',
-        targetDaysPerWeek: targetDaysPerWeek ? Number(targetDaysPerWeek) : 7,
+        targetDaysPerWeek: targetDaysPerWeek || 7,
         startDate: startDate || todayStr,
-        rewardAmount: rewardAmount !== undefined ? Number(rewardAmount) : 1000,
+        rewardAmount: rewardAmount !== undefined ? parseInt(rewardAmount, 10) : 1000,
       },
     });
 
-    return NextResponse.json({ success: true, habit: newHabit });
+    return NextResponse.json({ habit }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error creating habit:', error);
-    return NextResponse.json({ error: error.message || 'Tạo thói quen thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, title, description, timeOfDay, icon, startDate, rewardAmount } = body;
+    const { id, title, description, category, icon, timeOfDay, targetDaysPerWeek, startDate, rewardAmount } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
     }
 
-    const updatedHabit = await prisma.habit.update({
+    const updated = await prisma.habit.update({
       where: { id },
       data: {
-        ...(title ? { title } : {}),
-        ...(description !== undefined ? { description } : {}),
-        ...(timeOfDay ? { timeOfDay } : {}),
-        ...(icon ? { icon } : {}),
-        ...(startDate ? { startDate } : {}),
-        ...(rewardAmount !== undefined ? { rewardAmount: Number(rewardAmount) } : {}),
+        title,
+        description,
+        category,
+        icon,
+        timeOfDay,
+        targetDaysPerWeek,
+        startDate,
+        rewardAmount: rewardAmount !== undefined ? parseInt(rewardAmount, 10) : 1000,
       },
     });
 
-    return NextResponse.json({ success: true, habit: updatedHabit });
+    return NextResponse.json({ habit: updated }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error updating habit:', error);
-    return NextResponse.json({ error: error.message || 'Cập nhật thói quen thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -145,17 +150,21 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
-    if (id) {
-      await prisma.habit.delete({ where: { id } });
-    } else {
-      await prisma.habitCompletion.deleteMany({});
-      await prisma.dailyLog.deleteMany({});
-      await prisma.habit.deleteMany({});
+    if (!id) {
+      return NextResponse.json({ error: 'ID thói quen là bắt buộc' }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true });
+    await prisma.habitCompletion.deleteMany({
+      where: { habitId: id },
+    });
+
+    await prisma.habit.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error deleting habit:', error);
-    return NextResponse.json({ error: error.message || 'Xóa thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

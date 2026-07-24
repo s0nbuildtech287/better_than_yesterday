@@ -27,7 +27,7 @@ export const RichNotesEditor: React.FC = () => {
   const fetchNotes = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/notes');
+      const res = await fetch('/api/notes', { cache: 'no-store' });
       const data = await res.json();
       if (data.notes && data.notes.length > 0) {
         setNotes(data.notes);
@@ -228,7 +228,7 @@ export const RichNotesEditor: React.FC = () => {
                 </div>
               </div>
 
-              {/* Formatting Toolbar (Strict Single Line Scrollable Pills) */}
+              {/* Formatting Toolbar */}
               <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-100 dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 text-xs overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => insertSnippet('# Ý Lớn H1')}

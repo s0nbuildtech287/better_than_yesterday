@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const notes = await prisma.noteItem.findMany({
@@ -9,7 +12,7 @@ export async function GET() {
         { updatedAt: 'desc' },
       ],
     });
-    return NextResponse.json({ success: true, notes });
+    return NextResponse.json({ success: true, notes }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error fetching notes:', error);
     return NextResponse.json({ success: true, notes: [] });
@@ -24,16 +27,16 @@ export async function POST(request: Request) {
     const newNote = await prisma.noteItem.create({
       data: {
         title: title || 'Ghi chú mới',
-        content: content || '# Ghi chú của tôi\n\n- Ý lớn H1\n- Ý nhỏ H2\n',
+        content: content || '',
         category: category || 'GENERAL',
         pinned: pinned || false,
       },
     });
 
-    return NextResponse.json({ success: true, note: newNote });
+    return NextResponse.json({ success: true, note: newNote }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error creating note:', error);
-    return NextResponse.json({ error: error.message || 'Tạo ghi chú thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -46,20 +49,20 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
     }
 
-    const updatedNote = await prisma.noteItem.update({
+    const updated = await prisma.noteItem.update({
       where: { id },
       data: {
-        ...(title !== undefined ? { title } : {}),
-        ...(content !== undefined ? { content } : {}),
-        ...(category !== undefined ? { category } : {}),
-        ...(pinned !== undefined ? { pinned } : {}),
+        title,
+        content,
+        category,
+        pinned,
       },
     });
 
-    return NextResponse.json({ success: true, note: updatedNote });
+    return NextResponse.json({ success: true, note: updated }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error updating note:', error);
-    return NextResponse.json({ error: error.message || 'Cập nhật ghi chú thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -72,11 +75,13 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
     }
 
-    await prisma.noteItem.delete({ where: { id } });
+    await prisma.noteItem.delete({
+      where: { id },
+    });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error deleting note:', error);
-    return NextResponse.json({ error: error.message || 'Xóa ghi chú thất bại' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

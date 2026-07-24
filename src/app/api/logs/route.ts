@@ -2,12 +2,14 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { format, subDays, startOfWeek, addDays } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
 
-    // Fetch all active habits with their reward amounts
     const habits = await prisma.habit.findMany({
       where: { isActive: true },
       select: { id: true, rewardAmount: true },
@@ -18,162 +20,154 @@ export async function GET(request: Request) {
       habitRewardMap.set(h.id, h.rewardAmount || 1000);
     });
 
-    // Get completions for today
     const completions = await prisma.habitCompletion.findMany({
       where: { logDate: dateStr, completed: true },
     });
 
-    // Calculate today's total money saved/earned
-    let savedToday = 0;
-    completions.forEach((c: { habitId: string }) => {
-      savedToday += habitRewardMap.get(c.habitId) || 1000;
-    });
+    const completedHabitIds = completions.map((c: { habitId: string }) => c.habitId);
 
-    // Calculate all-time total money saved
+    const savedToday = completedHabitIds.reduce((sum: number, hId: string) => {
+      return sum + (habitRewardMap.get(hId) || 1000);
+    }, 0);
+
     const allCompletions = await prisma.habitCompletion.findMany({
       where: { completed: true },
       select: { habitId: true },
     });
 
-    let savedTotal = 0;
-    allCompletions.forEach((c: { habitId: string }) => {
-      savedTotal += habitRewardMap.get(c.habitId) || 1000;
-    });
+    const savedTotal = allCompletions.reduce((sum: number, c: { habitId: string }) => {
+      return sum + (habitRewardMap.get(c.habitId) || 1000);
+    }, 0);
 
-    // Get daily log for notes, mood & proof image
-    const dailyLog = await prisma.dailyLog.findUnique({
-      where: { logDate: dateStr },
-    });
-
-    // Fetch all logs for streak calculation & calendar matrix
-    const allLogs = await prisma.dailyLog.findMany({
-      orderBy: { logDate: 'desc' },
-      take: 365,
-    });
-
-    // Calculate real Streak Count
-    let streak = 0;
     const today = new Date();
+    let streakCount = 0;
+
     for (let i = 0; i < 365; i++) {
-      const checkDateStr = format(subDays(today, i), 'yyyy-MM-dd');
-      const log = allLogs.find((l: { logDate: string; effortScore: number }) => l.logDate === checkDateStr);
-      if (log && log.effortScore > 0) {
-        streak++;
+      const checkDate = subDays(today, i);
+      const dStr = format(checkDate, 'yyyy-MM-dd');
+
+      const log = await prisma.dailyLog.findUnique({
+        where: { logDate: dStr },
+      });
+
+      const dayCompletions = await prisma.habitCompletion.count({
+        where: { logDate: dStr, completed: true },
+      });
+
+      if ((log && log.effortScore > 0) || dayCompletions > 0) {
+        streakCount++;
       } else if (i > 0) {
         break;
       }
     }
 
-    // Map of dateStr -> effortScore for monthly matrix
+    const allLogs = await prisma.dailyLog.findMany({
+      orderBy: { logDate: 'desc' },
+      take: 90,
+    });
+
     const completedDatesMap: Record<string, number> = {};
     allLogs.forEach((l: { logDate: string; effortScore: number }) => {
       completedDatesMap[l.logDate] = l.effortScore;
     });
 
-    // Calculate real Weekly Scores for Mon-Sun
-    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
-    const weeklyScores: { day: string; score: number; isToday: boolean }[] = [];
-    const DAY_NAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
+    const daysOfWeek = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    
+    const weeklyScores = await Promise.all(
+      daysOfWeek.map(async (dayLabel, index) => {
+        const dayDate = addDays(startOfCurrentWeek, index);
+        const dayStr = format(dayDate, 'yyyy-MM-dd');
+        const isToday = dayStr === dateStr;
 
-    for (let i = 0; i < 7; i++) {
-      const dayDate = addDays(currentWeekStart, i);
-      const dayStr = format(dayDate, 'yyyy-MM-dd');
-      const log = allLogs.find((l: { logDate: string; effortScore: number }) => l.logDate === dayStr);
-      weeklyScores.push({
-        day: DAY_NAMES[i],
-        score: log ? log.effortScore : 0,
-        isToday: dayStr === dateStr,
-      });
-    }
+        const dayLog = await prisma.dailyLog.findUnique({
+          where: { logDate: dayStr },
+        });
+
+        const dayCompletionsCount = await prisma.habitCompletion.count({
+          where: { logDate: dayStr, completed: true },
+        });
+
+        let score = dayLog ? dayLog.effortScore : 0;
+        if (score === 0 && dayCompletionsCount > 0 && habits.length > 0) {
+          score = Math.round((dayCompletionsCount / habits.length) * 100);
+        }
+
+        return {
+          day: dayLabel,
+          score,
+          isToday,
+        };
+      })
+    );
+
+    const dailyLog = await prisma.dailyLog.findUnique({
+      where: { logDate: dateStr },
+    });
 
     return NextResponse.json({
       success: true,
       logDate: dateStr,
-      completedHabitIds: completions.map((c: { habitId: string }) => c.habitId),
-      dailyLog: dailyLog || null,
-      streakCount: streak,
-      completedDatesMap,
-      weeklyScores,
+      completedHabitIds,
+      streakCount,
       savedToday,
       savedTotal,
-    });
+      completedDatesMap,
+      weeklyScores,
+      dailyLog,
+    }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error fetching logs:', error);
-    return NextResponse.json({
-      success: true,
-      logDate: format(new Date(), 'yyyy-MM-dd'),
-      completedHabitIds: [],
-      dailyLog: null,
-      streakCount: 0,
-      completedDatesMap: {},
-      weeklyScores: [],
-      savedToday: 0,
-      savedTotal: 0,
-    });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { habitId, date, completed, notes, mood, proofImageUrl } = body;
-    const dateStr = date || format(new Date(), 'yyyy-MM-dd');
+    const { habitId, date, completed } = body;
 
-    if (habitId) {
-      if (completed) {
-        await prisma.habitCompletion.upsert({
-          where: {
-            habitId_logDate: {
-              habitId,
-              logDate: dateStr,
-            },
-          },
-          update: { completed: true, completedAt: new Date() },
-          create: {
-            habitId,
-            logDate: dateStr,
-            completed: true,
-          },
-        });
-      } else {
-        await prisma.habitCompletion.deleteMany({
-          where: { habitId, logDate: dateStr },
-        });
-      }
+    const logDate = date || format(new Date(), 'yyyy-MM-dd');
+
+    if (!habitId) {
+      return NextResponse.json({ error: 'habitId là bắt buộc' }, { status: 400 });
     }
 
-    const totalHabitsCount = await prisma.habit.count({ where: { isActive: true } });
+    if (completed) {
+      await prisma.habitCompletion.upsert({
+        where: {
+          habitId_logDate: { habitId, logDate },
+        },
+        update: { completed: true },
+        create: { habitId, logDate, completed: true },
+      });
+    } else {
+      await prisma.habitCompletion.deleteMany({
+        where: { habitId, logDate },
+      });
+    }
+
+    const totalHabits = await prisma.habit.count({ where: { isActive: true } });
     const completedCount = await prisma.habitCompletion.count({
-      where: { logDate: dateStr, completed: true },
+      where: { logDate, completed: true },
     });
 
-    const effortScore = totalHabitsCount > 0 ? Math.round((completedCount / totalHabitsCount) * 100) : 0;
+    const effortScore = totalHabits > 0 ? Math.round((completedCount / totalHabits) * 100) : 0;
 
-    const updatedLog = await prisma.dailyLog.upsert({
-      where: { logDate: dateStr },
-      update: {
-        effortScore,
-        ...(notes !== undefined ? { notes } : {}),
-        ...(mood !== undefined ? { mood } : {}),
-        ...(proofImageUrl !== undefined ? { proofImageUrl } : {}),
-      },
-      create: {
-        logDate: dateStr,
-        effortScore,
-        notes: notes || '',
-        mood: mood || 'GOOD',
-        proofImageUrl: proofImageUrl || null,
-      },
+    await prisma.dailyLog.upsert({
+      where: { logDate },
+      update: { effortScore },
+      create: { logDate, effortScore },
     });
 
     return NextResponse.json({
       success: true,
-      logDate: dateStr,
+      completedCount,
+      totalHabits,
       effortScore,
-      dailyLog: updatedLog,
-    });
+    }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
-    console.error('Error updating log:', error);
-    return NextResponse.json({ error: error.message || 'Failed to update log' }, { status: 500 });
+    console.error('Error saving log:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
