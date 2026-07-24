@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: 'Ứng dụng theo dõi thói quen tốt, loại bỏ thói quen xấu (vệ sinh cá nhân sáng/tối, thể dục, học tập, nấu ăn) giúp bạn tốt hơn 1% mỗi ngày.',
   keywords: ['habit tracker', 'effort tracker', 'skincare routine', 'gym routine', 'supabase', 'kỷ luật bản thân'],
   authors: [{ name: 'Better Than Yesterday' }],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -16,6 +21,8 @@ export default function RootLayout({
   return (
     <html lang="vi" className="scroll-smooth dark">
       <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link 
