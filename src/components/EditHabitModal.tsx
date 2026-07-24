@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Calendar, Check } from 'lucide-react';
+import { X, Sparkles, Calendar, Check, Coins } from 'lucide-react';
 import { HabitItem } from './HabitCard';
 
 interface EditHabitModalProps {
@@ -33,6 +33,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
   const [timeOfDay, setTimeOfDay] = useState('ANYTIME');
   const [selectedIcon, setSelectedIcon] = useState('Sparkles');
   const [startDate, setStartDate] = useState('');
+  const [rewardAmount, setRewardAmount] = useState<number>(1000);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -43,6 +44,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
       setTimeOfDay(habit.timeOfDay || 'ANYTIME');
       setSelectedIcon(habit.icon || 'Sparkles');
       setStartDate(habit.startDate || '');
+      setRewardAmount(habit.rewardAmount || 1000);
     }
   }, [habit]);
 
@@ -69,6 +71,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
           timeOfDay,
           icon: selectedIcon,
           startDate,
+          rewardAmount: Number(rewardAmount) || 1000,
         }),
       });
 
@@ -109,7 +112,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
               Chỉnh Sửa Thói Quen ✏️
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Cập nhật thông tin thói quen kỷ luật của bạn
+              Cập nhật thông tin thói quen & số tiền thưởng tiết kiệm
             </p>
           </div>
         </div>
@@ -148,6 +151,44 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#161B22] text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
+          </div>
+
+          {/* Reward Amount Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <Coins className="w-4 h-4" />
+                <span>Số tiền tiết kiệm / thưởng khi hoàn thành (VNĐ) 💰</span>
+              </span>
+            </label>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                step={1000}
+                min={0}
+                required
+                value={rewardAmount}
+                onChange={(e) => setRewardAmount(Number(e.target.value))}
+                className="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#161B22] text-sm font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+              <div className="flex gap-1">
+                {[
+                  { label: '35k 🍱', val: 35000 },
+                  { label: '10k 🥤', val: 10000 },
+                  { label: '1k 🏃', val: 1000 },
+                ].map((p) => (
+                  <button
+                    type="button"
+                    key={p.val}
+                    onClick={() => setRewardAmount(p.val)}
+                    className="px-2.5 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-xs"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Start Date */}

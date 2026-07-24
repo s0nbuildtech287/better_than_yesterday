@@ -7,9 +7,37 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
 
-    // Get completions for this date
+    // Fetch all active habits with their reward amounts
+    const habits = await prisma.habit.findMany({
+      where: { isActive: true },
+      select: { id: true, rewardAmount: true },
+    });
+
+    const habitRewardMap = new Map<string, number>();
+    habits.forEach((h: { id: string; rewardAmount: number }) => {
+      habitRewardMap.set(h.id, h.rewardAmount || 1000);
+    });
+
+    // Get completions for today
     const completions = await prisma.habitCompletion.findMany({
       where: { logDate: dateStr, completed: true },
+    });
+
+    // Calculate today's total money saved/earned
+    let savedToday = 0;
+    completions.forEach((c: { habitId: string }) => {
+      savedToday += habitRewardMap.get(c.habitId) || 1000;
+    });
+
+    // Calculate all-time total money saved
+    const allCompletions = await prisma.habitCompletion.findMany({
+      where: { completed: true },
+      select: { habitId: true },
+    });
+
+    let savedTotal = 0;
+    allCompletions.forEach((c: { habitId: string }) => {
+      savedTotal += habitRewardMap.get(c.habitId) || 1000;
     });
 
     // Get daily log for notes, mood & proof image
@@ -32,7 +60,7 @@ export async function GET(request: Request) {
       if (log && log.effortScore > 0) {
         streak++;
       } else if (i > 0) {
-        break; // Streak breaks
+        break;
       }
     }
 
@@ -43,7 +71,7 @@ export async function GET(request: Request) {
     });
 
     // Calculate real Weekly Scores for Mon-Sun
-    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 }); // Monday
+    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
     const weeklyScores: { day: string; score: number; isToday: boolean }[] = [];
     const DAY_NAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
@@ -66,6 +94,8 @@ export async function GET(request: Request) {
       streakCount: streak,
       completedDatesMap,
       weeklyScores,
+      savedToday,
+      savedTotal,
     });
   } catch (error: any) {
     console.error('Error fetching logs:', error);
@@ -77,6 +107,8 @@ export async function GET(request: Request) {
       streakCount: 0,
       completedDatesMap: {},
       weeklyScores: [],
+      savedToday: 0,
+      savedTotal: 0,
     });
   }
 }
@@ -87,7 +119,6 @@ export async function POST(request: Request) {
     const { habitId, date, completed, notes, mood, proofImageUrl } = body;
     const dateStr = date || format(new Date(), 'yyyy-MM-dd');
 
-    // Handle habit toggle completion
     if (habitId) {
       if (completed) {
         await prisma.habitCompletion.upsert({
@@ -111,7 +142,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Calculate updated effort score based on real DB counts
     const totalHabitsCount = await prisma.habit.count({ where: { isActive: true } });
     const completedCount = await prisma.habitCompletion.count({
       where: { logDate: dateStr, completed: true },
@@ -119,7 +149,6 @@ export async function POST(request: Request) {
 
     const effortScore = totalHabitsCount > 0 ? Math.round((completedCount / totalHabitsCount) * 100) : 0;
 
-    // Upsert DailyLog in PostgreSQL
     const updatedLog = await prisma.dailyLog.upsert({
       where: { logDate: dateStr },
       update: {

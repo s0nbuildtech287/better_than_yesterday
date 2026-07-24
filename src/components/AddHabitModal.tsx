@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Sparkles, Sun, Moon, Clock, Calendar, Check } from 'lucide-react';
+import { X, Sparkles, Calendar, Check, Coins } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface AddHabitModalProps {
@@ -32,6 +32,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
   const [timeOfDay, setTimeOfDay] = useState('ANYTIME');
   const [selectedIcon, setSelectedIcon] = useState('Sparkles');
   const [startDate, setStartDate] = useState(todayStr);
+  const [rewardAmount, setRewardAmount] = useState<number>(1000);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -57,6 +58,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
           timeOfDay,
           icon: selectedIcon,
           startDate: startDate || todayStr,
+          rewardAmount: Number(rewardAmount) || 1000,
         }),
       });
 
@@ -67,6 +69,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
         setTimeOfDay('ANYTIME');
         setSelectedIcon('Sparkles');
         setStartDate(todayStr);
+        setRewardAmount(1000);
         onAdded();
         onClose();
       } else {
@@ -102,7 +105,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
               Thêm Thói Quen Mới ✨
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Loại bỏ thói quen xấu, xây dựng kỷ luật mới
+              Loại bỏ thói quen xấu, thiết lập số tiền tiết kiệm / thưởng khi hoàn thành
             </p>
           </div>
         </div>
@@ -126,7 +129,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="VD: Đánh răng & Skincare tối, Tập chống đẩy 20 cái..."
+              placeholder="VD: Nấu cơm đi làm, Không mua nước ngọt, Chạy bộ 5km..."
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#161B22] text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
           </div>
@@ -140,12 +143,51 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="VD: Giúp mặt sạch mụn, tự tin hơn mỗi sáng..."
+              placeholder="VD: Tiết kiệm tiền ăn trưa, bảo vệ sức khỏe..."
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#161B22] text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
           </div>
 
-          {/* Start Date Selection (Ngày Bắt Đầu 📅) */}
+          {/* Virtual Money Saved / Reward Amount Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <Coins className="w-4 h-4" />
+                <span>Số tiền tiết kiệm / thưởng khi hoàn thành (VNĐ) 💰</span>
+              </span>
+            </label>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                step={1000}
+                min={0}
+                required
+                value={rewardAmount}
+                onChange={(e) => setRewardAmount(Number(e.target.value))}
+                placeholder="VD: 35000 (cho nấu cơm), 10000 (cho nhịn nước ngọt), 1000 (khác)..."
+                className="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#161B22] text-sm font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+              <div className="flex gap-1">
+                {[
+                  { label: '35k 🍱', val: 35000 },
+                  { label: '10k 🥤', val: 10000 },
+                  { label: '1k 🏃', val: 1000 },
+                ].map((p) => (
+                  <button
+                    type="button"
+                    key={p.val}
+                    onClick={() => setRewardAmount(p.val)}
+                    className="px-2.5 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-xs"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Start Date Selection */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-amber-500" />

@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   Sparkles, CheckCircle2, Circle, Clock, Camera, 
-  Flame, Calendar, AlertTriangle, ChevronRight 
+  Flame, Calendar, AlertTriangle, ChevronRight, Coins 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { format, parseISO } from 'date-fns';
@@ -17,6 +17,7 @@ export interface HabitItem {
   timeOfDay: string;
   targetDaysPerWeek: number;
   startDate?: string | null;
+  rewardAmount?: number;
   streakCount?: number;
   breakCount?: number;
   completedDates?: string[];
@@ -75,6 +76,12 @@ export const HabitCard: React.FC<HabitCardProps> = ({
 
   const streak = habit.streakCount || 0;
   const breakCount = habit.breakCount || 0;
+  const reward = habit.rewardAmount || 1000;
+
+  const formatVND = (num: number) => {
+    if (num >= 1000) return `+${num / 1000}kđ`;
+    return `+${num}đ`;
+  };
 
   return (
     <div
@@ -95,8 +102,8 @@ export const HabitCard: React.FC<HabitCardProps> = ({
               {emojiIcon}
             </div>
 
-            <div>
-              <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${
+            <div className="flex flex-col gap-1">
+              <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border self-start ${
                 habit.timeOfDay === 'MORNING'
                   ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
                   : habit.timeOfDay === 'EVENING'
@@ -108,17 +115,25 @@ export const HabitCard: React.FC<HabitCardProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={handleCheck}
-            className={`p-2 rounded-2xl transition-all transform active:scale-90 ${
-              isCompleted
-                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10'
-            }`}
-            title="Đánh dấu hoàn thành"
-          >
-            {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Money Reward Badge */}
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black">
+              <Coins className="w-3.5 h-3.5" />
+              <span>{formatVND(reward)}</span>
+            </span>
+
+            <button
+              onClick={handleCheck}
+              className={`p-2 rounded-2xl transition-all transform active:scale-90 ${
+                isCompleted
+                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10'
+              }`}
+              title="Đánh dấu hoàn thành"
+            >
+              {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Habit Title */}
@@ -139,12 +154,12 @@ export const HabitCard: React.FC<HabitCardProps> = ({
         <div className="flex items-center gap-2 mb-3 pt-1">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[11px] font-bold">
             <Flame className="w-3.5 h-3.5 fill-amber-500" />
-            <span>{streak} ngày liên tục</span>
+            <span>{streak} ngày</span>
           </span>
 
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 text-[11px] font-bold">
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>{breakCount} lần đứt quãng</span>
+            <span>{breakCount} đứt</span>
           </span>
         </div>
       </div>

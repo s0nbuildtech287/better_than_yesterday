@@ -17,6 +17,7 @@ model Habit {
   timeOfDay         String            @default("ANYTIME") // MORNING, EVENING, ANYTIME
   targetDaysPerWeek Int               @default(7)
   startDate         String?           // YYYY-MM-DD Start Date of the habit
+  rewardAmount      Int               @default(1000) // Value saved/earned in VNĐ (e.g. 35000 for cooking, 10000 for no soft drink)
   isActive          Boolean           @default(true)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { format, subDays, addDays, differenceInDays, parseISO } from 'date-fns';
+import { format, subDays, addDays, differenceInDays } from 'date-fns';
 
 export async function GET() {
   try {
@@ -28,15 +28,14 @@ export async function GET() {
         if (completedDatesSet.has(dStr)) {
           streak++;
         } else if (i > 0) {
-          break; // streak breaks if missed a past day
+          break;
         }
       }
 
-      // Calculate break count precisely
+      // Calculate break count
       let breakCount = 0;
       if (h.startDate) {
         if (h.startDate > todayStr) {
-          // Future start date -> 0 breaks
           breakCount = 0;
         } else {
           try {
@@ -48,7 +47,6 @@ export async function GET() {
               const checkDate = addDays(start, i);
               const checkStr = format(checkDate, 'yyyy-MM-dd');
 
-              // Only count missed days strictly BEFORE today
               if (checkStr < todayStr && !completedDatesSet.has(checkStr)) {
                 missed++;
               }
@@ -69,6 +67,7 @@ export async function GET() {
         timeOfDay: h.timeOfDay,
         targetDaysPerWeek: h.targetDaysPerWeek,
         startDate: h.startDate,
+        rewardAmount: h.rewardAmount || 1000,
         streakCount: streak,
         breakCount,
         completedDates: Array.from(completedDatesSet),
@@ -85,7 +84,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, icon, timeOfDay, targetDaysPerWeek, startDate } = body;
+    const { title, description, category, icon, timeOfDay, targetDaysPerWeek, startDate, rewardAmount } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Tên thói quen là bắt buộc' }, { status: 400 });
@@ -102,6 +101,7 @@ export async function POST(request: Request) {
         timeOfDay: timeOfDay || 'ANYTIME',
         targetDaysPerWeek: targetDaysPerWeek ? Number(targetDaysPerWeek) : 7,
         startDate: startDate || todayStr,
+        rewardAmount: rewardAmount !== undefined ? Number(rewardAmount) : 1000,
       },
     });
 
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, title, description, timeOfDay, icon, startDate } = body;
+    const { id, title, description, timeOfDay, icon, startDate, rewardAmount } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'ID là bắt buộc' }, { status: 400 });
@@ -129,6 +129,7 @@ export async function PUT(request: Request) {
         ...(timeOfDay ? { timeOfDay } : {}),
         ...(icon ? { icon } : {}),
         ...(startDate ? { startDate } : {}),
+        ...(rewardAmount !== undefined ? { rewardAmount: Number(rewardAmount) } : {}),
       },
     });
 

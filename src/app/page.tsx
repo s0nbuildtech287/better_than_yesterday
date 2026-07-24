@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { WelcomeWidget } from '@/components/WelcomeWidget';
 import { StreakStats } from '@/components/StreakStats';
+import { SavingsVault } from '@/components/SavingsVault';
 import { EffortMatrix } from '@/components/EffortMatrix';
 import { AnalyticsCharts } from '@/components/AnalyticsCharts';
 import { HabitCard, HabitItem } from '@/components/HabitCard';
@@ -23,6 +24,8 @@ export default function HomePage() {
   const [habits, setHabits] = useState<HabitItem[]>([]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [streakCount, setStreakCount] = useState<number>(0);
+  const [savedToday, setSavedToday] = useState<number>(0);
+  const [savedTotal, setSavedTotal] = useState<number>(0);
   const [completedDatesMap, setCompletedDatesMap] = useState<Record<string, number>>({});
   const [weeklyScores, setWeeklyScores] = useState<{ day: string; score: number; isToday: boolean }[]>([]);
   const [dailyLog, setDailyLog] = useState<{ proofImageUrl?: string | null; notes?: string | null } | null>(null);
@@ -76,6 +79,12 @@ export default function HomePage() {
       }
       if (logsData.streakCount !== undefined) {
         setStreakCount(logsData.streakCount);
+      }
+      if (logsData.savedToday !== undefined) {
+        setSavedToday(logsData.savedToday);
+      }
+      if (logsData.savedTotal !== undefined) {
+        setSavedTotal(logsData.savedTotal);
       }
       if (logsData.completedDatesMap) {
         setCompletedDatesMap(logsData.completedDatesMap);
@@ -218,6 +227,12 @@ export default function HomePage() {
                 userName="Sơn"
                 streakCount={streakCount}
                 onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
+              />
+
+              {/* Virtual Money Savings Vault Widget */}
+              <SavingsVault
+                savedToday={savedToday}
+                savedTotal={savedTotal}
               />
 
               <StreakStats
