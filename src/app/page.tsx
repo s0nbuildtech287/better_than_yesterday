@@ -178,7 +178,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-white">
         <div className="flex items-center gap-3">
           <Sparkles className="w-6 h-6 text-amber-500 animate-spin" />
-          <span className="text-sm font-bold">Đang kiểm tra quyền truy cập xu4ns0n...</span>
+          <span className="text-sm font-bold">Đang kiểm tra quyền truy cập...</span>
         </div>
       </div>
     );
@@ -280,7 +280,7 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 whitespace-nowrap">
-                    <span>Thói Quen Hôm Nay</span>
+                    <span>Thói Quen Hôm Nay ({filteredHabits.length})</span>
                     <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
                       Hôm nay
                     </span>
@@ -296,13 +296,13 @@ export default function HomePage() {
 
                 {isLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-                    {[1, 2, 3].map((i) => (
+                    {[1, 2, 3, 4].map((i) => (
                       <div key={i} className="modern-card p-6 h-44 animate-pulse bg-slate-200/50 dark:bg-slate-800/50" />
                     ))}
                   </div>
-                ) : habits.length > 0 ? (
+                ) : filteredHabits.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-                    {habits.slice(0, 4).map((habit) => (
+                    {filteredHabits.map((habit) => (
                       <HabitCard
                         key={habit.id}
                         habit={habit}
