@@ -52,3 +52,23 @@ model MotivationalQuote {
   category  String   @default("GENERAL")
   createdAt DateTime @default(now())
 }
+
+model TodoItem {
+  id        String   @id @default(cuid())
+  title     String
+  completed Boolean  @default(false)
+  priority  String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  dueDate   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NoteItem {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   // Supports Rich Formatting (H1, H2, H3, Indented Bullets, Tables)
+  category  String   @default("GENERAL")
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

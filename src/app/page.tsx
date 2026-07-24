@@ -8,11 +8,13 @@ import { StreakStats } from '@/components/StreakStats';
 import { EffortMatrix } from '@/components/EffortMatrix';
 import { AnalyticsCharts } from '@/components/AnalyticsCharts';
 import { HabitCard, HabitItem } from '@/components/HabitCard';
+import { TodoListManager } from '@/components/TodoListManager';
+import { RichNotesEditor } from '@/components/RichNotesEditor';
 import { UploadModal } from '@/components/UploadModal';
 import { AddHabitModal } from '@/components/AddHabitModal';
 import { EmergencyMotivationModal } from '@/components/EmergencyMotivationModal';
 import { PhotoGallery } from '@/components/PhotoGallery';
-import { Sparkles, CheckCircle2, PlusCircle, X, Sun, Moon, Clock, ArrowRight } from 'lucide-react';
+import { Sparkles, CheckCircle2, PlusCircle, X, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function HomePage() {
@@ -24,9 +26,9 @@ export default function HomePage() {
   const [dailyLog, setDailyLog] = useState<{ proofImageUrl?: string | null; notes?: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
-  // Strict Isolated Views: ALL (Dashboard), HABITS, GALLERY, ANALYTICS, BADGES
+  // Navigation tabs: ALL (Dashboard), HABITS, NOTES, GALLERY, ANALYTICS, BADGES
   const [activeTab, setActiveTab] = useState<string>('ALL');
-  const [filterTime, setFilterTime] = useState<string>('ALL'); // ALL, MORNING, EVENING, ANYTIME
+  const [filterTime, setFilterTime] = useState<string>('ALL');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
@@ -200,15 +202,12 @@ export default function HomePage() {
           {/* ==================== VIEW 1: TỔNG QUAN DASHBOARD ==================== */}
           {activeTab === 'ALL' && (
             <div className="space-y-8 animate-fadeIn">
-              
-              {/* Welcome Greeting & Real-time Clock Widget */}
               <WelcomeWidget
                 userName="Sơn"
                 streakCount={streakCount}
                 onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
               />
 
-              {/* Stats Bar */}
               <StreakStats
                 streakCount={streakCount}
                 totalHabits={habits.length}
@@ -217,7 +216,6 @@ export default function HomePage() {
                 onFilterChange={setFilterTime}
               />
 
-              {/* Habit Checklist Section (Compact Overview) */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -272,14 +270,12 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-
             </div>
           )}
 
           {/* ==================== VIEW 2: QUẢN LÝ THÓI QUEN ==================== */}
           {activeTab === 'HABITS' && (
             <div className="space-y-6 animate-fadeIn">
-              
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-slate-900 border border-amber-500/30">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -299,7 +295,6 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Filter Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 {[
                   { id: 'ALL', label: 'Tất Cả Thói Quen ✨' },
@@ -321,7 +316,6 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Habits Cards Grid */}
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {[1, 2, 3, 4].map((i) => (
@@ -355,11 +349,21 @@ export default function HomePage() {
                   </button>
                 </div>
               )}
-
             </div>
           )}
 
-          {/* ==================== VIEW 3: KHO ẢNH MINH CHỨNG ==================== */}
+          {/* ==================== VIEW 3: GHI CHÚ & TODO LIST ==================== */}
+          {activeTab === 'NOTES' && (
+            <div className="space-y-8 animate-fadeIn">
+              {/* Todo List Component */}
+              <TodoListManager />
+
+              {/* Notion-style Rich Notes Editor */}
+              <RichNotesEditor />
+            </div>
+          )}
+
+          {/* ==================== VIEW 4: KHO ẢNH MINH CHỨNG ==================== */}
           {activeTab === 'GALLERY' && (
             <div className="space-y-6 animate-fadeIn">
               <PhotoGallery
@@ -371,7 +375,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 4: BIỂU ĐỒ & NỖ LỰC ==================== */}
+          {/* ==================== VIEW 5: BIỂU ĐỒ & NỖ LỰC ==================== */}
           {activeTab === 'ANALYTICS' && (
             <div className="space-y-8 animate-fadeIn">
               <EffortMatrix
@@ -383,7 +387,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 5: HUY CHƯƠNG THÀNH TÍCH ==================== */}
+          {/* ==================== VIEW 6: HUY CHƯƠNG THÀNH TÍCH ==================== */}
           {activeTab === 'BADGES' && (
             <div className="space-y-8 animate-fadeIn">
               <AnalyticsCharts

@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   Sparkles, Sun, Moon, Flame, Zap, PlusCircle, 
-  LayoutDashboard, Camera, BarChart3, Trophy, CheckSquare 
+  LayoutDashboard, Camera, BarChart3, Trophy, CheckSquare, FileText 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,6 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const NAV_ITEMS = [
     { id: 'ALL', label: 'Tổng Quan Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'HABITS', label: 'Quản Lý Thói Quen', icon: <CheckSquare className="w-5 h-5" /> },
+    { id: 'NOTES', label: 'Ghi Chú & Todo List 📝', icon: <FileText className="w-5 h-5" /> },
     { id: 'GALLERY', label: 'Kho Ảnh Minh Chứng', icon: <Camera className="w-5 h-5" /> },
     { id: 'ANALYTICS', label: 'Biểu Đồ & Lịch Activity', icon: <BarChart3 className="w-5 h-5" /> },
     { id: 'BADGES', label: 'Huy Chương Thành Tích', icon: <Trophy className="w-5 h-5" /> },
