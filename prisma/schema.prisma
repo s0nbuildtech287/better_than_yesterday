@@ -16,6 +16,7 @@ model Habit {
   icon              String            @default("Sparkles")
   timeOfDay         String            @default("ANYTIME") // MORNING, EVENING, ANYTIME
   targetDaysPerWeek Int               @default(7)
+  startDate         String?           // YYYY-MM-DD Start Date of the habit
   isActive          Boolean           @default(true)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

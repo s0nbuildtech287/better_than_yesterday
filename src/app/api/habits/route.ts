@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { format } from 'date-fns';
 
 export async function GET() {
   try {
@@ -18,11 +19,13 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, icon, timeOfDay, targetDaysPerWeek } = body;
+    const { title, description, category, icon, timeOfDay, targetDaysPerWeek, startDate } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Tên thói quen là bắt buộc' }, { status: 400 });
     }
+
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
 
     const newHabit = await prisma.habit.create({
       data: {
@@ -32,6 +35,7 @@ export async function POST(request: Request) {
         icon: icon || 'Sparkles',
         timeOfDay: timeOfDay || 'ANYTIME',
         targetDaysPerWeek: targetDaysPerWeek ? Number(targetDaysPerWeek) : 7,
+        startDate: startDate || todayStr,
       },
     });
 
@@ -50,7 +54,6 @@ export async function DELETE(request: Request) {
     if (id) {
       await prisma.habit.delete({ where: { id } });
     } else {
-      // Clear all habits if requested
       await prisma.habitCompletion.deleteMany({});
       await prisma.dailyLog.deleteMany({});
       await prisma.habit.deleteMany({});
