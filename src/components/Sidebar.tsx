@@ -41,15 +41,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       
       {/* Top Branding Section */}
       <div>
-        <div className="flex items-center gap-3 px-2 py-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+        <div className="flex items-center gap-3 px-1 py-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20 flex-shrink-0">
             <Sparkles className="w-5 h-5 animate-pulse" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-[15px] font-extrabold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap">
               Better Than Yesterday
             </h1>
-            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <p className="text-xs font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
               Tốt Hơn 1% Mỗi Ngày
             </p>
           </div>
