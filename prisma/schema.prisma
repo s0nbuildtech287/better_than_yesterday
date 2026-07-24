@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Habit {
+  id                String            @id @default(cuid())
+  title             String
+  description       String?
+  category          String            // HYGIENE_MORNING, HYGIENE_NIGHT, FITNESS, LEARNING, MEAL_PREP, CUSTOM
+  icon              String            @default("Sparkles")
+  timeOfDay         String            @default("ANYTIME") // MORNING, EVENING, ANYTIME
+  targetDaysPerWeek Int               @default(7)
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  completions       HabitCompletion[]
+}
+
+model HabitCompletion {
+  id          String   @id @default(cuid())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  logDate     String   // YYYY-MM-DD
+  completed   Boolean  @default(true)
+  completedAt DateTime @default(now())
+
+  @@unique([habitId, logDate])
+}
+
+model DailyLog {
+  id            String   @id @default(cuid())
+  logDate       String   @unique // YYYY-MM-DD
+  mood          String?  // GREAT, GOOD, OKAY, TIRED
+  notes         String?
+  proofImageUrl String?
+  streakCount   Int      @default(0)
+  effortScore   Int      @default(0) // 0-100%
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model MotivationalQuote {
+  id        String   @id @default(cuid())
+  quote     String
+  author    String   @default("Kỷ Luật Bản Thân")
+  category  String   @default("GENERAL")
+  createdAt DateTime @default(now())
+}
