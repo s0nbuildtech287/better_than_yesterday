@@ -12,6 +12,8 @@ import { TodoListManager } from '@/components/TodoListManager';
 import { RichNotesEditor } from '@/components/RichNotesEditor';
 import { UploadModal } from '@/components/UploadModal';
 import { AddHabitModal } from '@/components/AddHabitModal';
+import { EditHabitModal } from '@/components/EditHabitModal';
+import { HabitDetailModal } from '@/components/HabitDetailModal';
 import { EmergencyMotivationModal } from '@/components/EmergencyMotivationModal';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { Sparkles, CheckCircle2, PlusCircle, X, ArrowRight } from 'lucide-react';
@@ -36,6 +38,10 @@ export default function HomePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isMotivationModalOpen, setIsMotivationModalOpen] = useState(false);
+  
+  // Habit Detail & Edit Modals state
+  const [selectedHabitForDetail, setSelectedHabitForDetail] = useState<HabitItem | null>(null);
+  const [selectedHabitForEdit, setSelectedHabitForEdit] = useState<HabitItem | null>(null);
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
@@ -113,6 +119,15 @@ export default function HomePage() {
     }
   };
 
+  const handleDeleteHabit = async (habitId: string) => {
+    try {
+      await fetch(`/api/habits?id=${habitId}`, { method: 'DELETE' });
+      fetchData();
+    } catch (err) {
+      console.error('Error deleting habit:', err);
+    }
+  };
+
   const handleUploadSuccess = (imageUrl: string, notes: string) => {
     setDailyLog((prev) => ({
       ...prev,
@@ -121,7 +136,6 @@ export default function HomePage() {
     }));
   };
 
-  // Filter habits based on time of day
   const filteredHabits = habits.filter((h) => {
     if (filterTime === 'ALL') return true;
     return h.timeOfDay === filterTime;
@@ -183,10 +197,9 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Right Main Content Area (Wide Layout - max-w-[1600px]) */}
+      {/* Right Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         
-        {/* Top Header */}
         <Header
           streakCount={streakCount}
           isDarkMode={isDarkMode}
@@ -196,10 +209,9 @@ export default function HomePage() {
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
-        {/* Content Container */}
         <main className="p-4 sm:p-8 max-w-[1600px] w-full mx-auto flex-1">
           
-          {/* ==================== VIEW 1: TỔNG QUAN DASHBOARD ==================== */}
+          {/* VIEW 1: TỔNG QUAN DASHBOARD */}
           {activeTab === 'ALL' && (
             <div className="space-y-8 animate-fadeIn">
               <WelcomeWidget
@@ -248,6 +260,7 @@ export default function HomePage() {
                         isCompleted={completedIds.includes(habit.id)}
                         onToggle={handleToggleHabit}
                         onUploadProof={() => setIsUploadModalOpen(true)}
+                        onClickDetail={(h) => setSelectedHabitForDetail(h)}
                       />
                     ))}
                   </div>
@@ -273,7 +286,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 2: QUẢN LÝ THÓI QUEN ==================== */}
+          {/* VIEW 2: QUẢN LÝ THÓI QUEN */}
           {activeTab === 'HABITS' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-slate-900 border border-amber-500/30">
@@ -282,7 +295,7 @@ export default function HomePage() {
                     Quản Lý Thói Quen Của Bạn ⚡
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    Danh sách các thói quen vệ sinh, sức khỏe, nấu ăn và học tập bạn tự thiết lập
+                    Nhấp vào thẻ thói quen để xem lịch sử check-in, số lần đứt quãng, chỉnh sửa hoặc xóa
                   </p>
                 </div>
 
@@ -331,6 +344,7 @@ export default function HomePage() {
                       isCompleted={completedIds.includes(habit.id)}
                       onToggle={handleToggleHabit}
                       onUploadProof={() => setIsUploadModalOpen(true)}
+                      onClickDetail={(h) => setSelectedHabitForDetail(h)}
                     />
                   ))}
                 </div>
@@ -352,18 +366,15 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 3: GHI CHÚ & TODO LIST ==================== */}
+          {/* VIEW 3: GHI CHÚ & TODO LIST */}
           {activeTab === 'NOTES' && (
             <div className="space-y-8 animate-fadeIn">
-              {/* Todo List Component */}
               <TodoListManager />
-
-              {/* Notion-style Rich Notes Editor */}
               <RichNotesEditor />
             </div>
           )}
 
-          {/* ==================== VIEW 4: KHO ẢNH MINH CHỨNG ==================== */}
+          {/* VIEW 4: KHO ẢNH MINH CHỨNG */}
           {activeTab === 'GALLERY' && (
             <div className="space-y-6 animate-fadeIn">
               <PhotoGallery
@@ -375,7 +386,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 5: BIỂU ĐỒ & NỖ LỰC ==================== */}
+          {/* VIEW 5: BIỂU ĐỒ & NỖ LỰC */}
           {activeTab === 'ANALYTICS' && (
             <div className="space-y-8 animate-fadeIn">
               <EffortMatrix
@@ -387,7 +398,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ==================== VIEW 6: HUY CHƯƠNG THÀNH TÍCH ==================== */}
+          {/* VIEW 6: HUY CHƯƠNG THÀNH TÍCH */}
           {activeTab === 'BADGES' && (
             <div className="space-y-8 animate-fadeIn">
               <AnalyticsCharts
@@ -414,6 +425,21 @@ export default function HomePage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAdded={fetchData}
+      />
+
+      <EditHabitModal
+        isOpen={!!selectedHabitForEdit}
+        habit={selectedHabitForEdit}
+        onClose={() => setSelectedHabitForEdit(null)}
+        onUpdated={fetchData}
+      />
+
+      <HabitDetailModal
+        isOpen={!!selectedHabitForDetail}
+        habit={selectedHabitForDetail}
+        onClose={() => setSelectedHabitForDetail(null)}
+        onEdit={(h) => setSelectedHabitForEdit(h)}
+        onDelete={handleDeleteHabit}
       />
 
       <EmergencyMotivationModal

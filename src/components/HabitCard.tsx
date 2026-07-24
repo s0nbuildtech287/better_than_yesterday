@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   Sparkles, CheckCircle2, Circle, Clock, Camera, 
-  Flame, Calendar 
+  Flame, Calendar, AlertTriangle, ChevronRight 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { format, parseISO } from 'date-fns';
@@ -17,6 +17,9 @@ export interface HabitItem {
   timeOfDay: string;
   targetDaysPerWeek: number;
   startDate?: string | null;
+  streakCount?: number;
+  breakCount?: number;
+  completedDates?: string[];
 }
 
 interface HabitCardProps {
@@ -24,6 +27,7 @@ interface HabitCardProps {
   isCompleted: boolean;
   onToggle: (id: string, nextState: boolean) => void;
   onUploadProof?: (id: string) => void;
+  onClickDetail?: (habit: HabitItem) => void;
 }
 
 const ICON_MAP: Record<string, string> = {
@@ -42,11 +46,12 @@ export const HabitCard: React.FC<HabitCardProps> = ({
   isCompleted,
   onToggle,
   onUploadProof,
+  onClickDetail,
 }) => {
-  const handleCheck = () => {
+  const handleCheck = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const nextState = !isCompleted;
     if (nextState) {
-      // Trigger Confetti Celebration
       confetti({
         particleCount: 80,
         spread: 60,
@@ -59,7 +64,6 @@ export const HabitCard: React.FC<HabitCardProps> = ({
 
   const emojiIcon = ICON_MAP[habit.icon || 'Sparkles'] || '✨';
 
-  // Format start date string
   let formattedStartDate = '';
   if (habit.startDate) {
     try {
@@ -69,9 +73,13 @@ export const HabitCard: React.FC<HabitCardProps> = ({
     }
   }
 
+  const streak = habit.streakCount || 0;
+  const breakCount = habit.breakCount || 0;
+
   return (
     <div
-      className={`modern-card p-5 border flex flex-col justify-between transition-all duration-300 transform ${
+      onClick={() => onClickDetail && onClickDetail(habit)}
+      className={`modern-card p-5 border flex flex-col justify-between transition-all duration-300 transform cursor-pointer ${
         isCompleted
           ? 'bg-slate-100/60 dark:bg-[#0E1422]/90 border-emerald-500/40 shadow-sm opacity-90'
           : 'bg-white dark:bg-[#0D1117] border-slate-200 dark:border-slate-800 hover:border-amber-500/50 shadow-md hover:shadow-lg'
@@ -107,6 +115,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10'
             }`}
+            title="Đánh dấu hoàn thành"
           >
             {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
           </button>
@@ -125,28 +134,49 @@ export const HabitCard: React.FC<HabitCardProps> = ({
             {habit.description}
           </p>
         )}
+
+        {/* Streak & Break Count Badges Row */}
+        <div className="flex items-center gap-2 mb-3 pt-1">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[11px] font-bold">
+            <Flame className="w-3.5 h-3.5 fill-amber-500" />
+            <span>{streak} ngày liên tục</span>
+          </span>
+
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 text-[11px] font-bold">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>{breakCount} lần đứt quãng</span>
+          </span>
+        </div>
       </div>
 
       {/* Footer Info & Actions */}
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between mt-2 text-xs">
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
         
         {/* Start Date Indicator */}
         <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
           <Calendar className="w-3.5 h-3.5 text-amber-500" />
-          <span>{formattedStartDate ? `Bắt đầu: ${formattedStartDate}` : 'Mới tạo'}</span>
+          <span>{formattedStartDate ? `Từ: ${formattedStartDate}` : 'Mới tạo'}</span>
         </div>
 
-        {/* Upload Proof Button */}
-        {onUploadProof && (
-          <button
-            onClick={() => onUploadProof(habit.id)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-500/10 text-slate-600 dark:text-slate-400 hover:text-amber-500 font-bold transition-all text-[11px]"
-            title="Tải ảnh minh chứng"
-          >
-            <Camera className="w-3.5 h-3.5" />
-            <span>Ảnh chứng minh</span>
-          </button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {onUploadProof && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onUploadProof(habit.id);
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-500/10 text-slate-600 dark:text-slate-400 hover:text-amber-500 font-bold transition-all text-[11px]"
+              title="Tải ảnh minh chứng"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>Ảnh</span>
+            </button>
+          )}
+
+          <span className="p-1 rounded-lg text-slate-400 hover:text-amber-500">
+            <ChevronRight className="w-4 h-4" />
+          </span>
+        </div>
       </div>
 
     </div>
