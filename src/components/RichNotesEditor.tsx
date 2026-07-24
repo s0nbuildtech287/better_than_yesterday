@@ -125,36 +125,35 @@ export const RichNotesEditor: React.FC = () => {
     }
   };
 
-  // Helper formatting injectors
   const insertSnippet = (snippet: string) => {
     setContent((prev) => prev + '\n' + snippet);
   };
 
   return (
-    <div className="modern-card p-6 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0D1117] min-h-[600px] flex flex-col justify-between">
+    <div className="modern-card p-4 sm:p-6 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0D1117] min-h-[500px] flex flex-col justify-between">
       
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex-shrink-0">
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <span>Ghi Chú Notion-Style (Rich Notes & Tables)</span>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 whitespace-nowrap">
+              <span>Ghi Chú Notion-Style</span>
               <Sparkles className="w-4 h-4 text-amber-400" />
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Hỗ trợ phân cấp ý lớn, ý bé, ý bé hơn, chèn bảng Table & lưu trực tiếp vào Database
+              Phân cấp ý lớn, ý bé, chèn bảng Table & lưu trực tiếp Database
             </p>
           </div>
         </div>
 
         <button
           onClick={handleCreateNewNote}
-          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
+          className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all whitespace-nowrap flex-shrink-0 self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 flex-shrink-0" />
           <span>Tạo Ghi Chú Mới</span>
         </button>
       </div>
@@ -163,7 +162,7 @@ export const RichNotesEditor: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
         
         {/* Left Sidebar Notes List */}
-        <div className="lg:col-span-1 border-r border-slate-200 dark:border-slate-800/80 pr-4 space-y-2 max-h-[500px] overflow-y-auto">
+        <div className="lg:col-span-1 border-r border-slate-200 dark:border-slate-800/80 pr-0 lg:pr-4 space-y-2 max-h-[300px] lg:max-h-[500px] overflow-y-auto">
           <div className="text-[11px] font-bold uppercase text-slate-400 tracking-wider mb-2">
             Danh Sách Ghi Chú ({notes.length})
           </div>
@@ -178,9 +177,9 @@ export const RichNotesEditor: React.FC = () => {
                   : 'bg-slate-50 dark:bg-[#161B22] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <div className="flex items-center gap-2 truncate">
+              <div className="flex items-center gap-2 truncate min-w-0">
                 <Bookmark className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs truncate">{note.title || 'Chưa đặt tên'}</span>
+                <span className="text-xs truncate whitespace-nowrap">{note.title || 'Chưa đặt tên'}</span>
               </div>
 
               <button
@@ -188,7 +187,7 @@ export const RichNotesEditor: React.FC = () => {
                   e.stopPropagation();
                   handleDeleteNote(note.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity flex-shrink-0"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -197,23 +196,23 @@ export const RichNotesEditor: React.FC = () => {
         </div>
 
         {/* Right Editor Area */}
-        <div className="lg:col-span-3 space-y-4 flex flex-col">
+        <div className="lg:col-span-3 space-y-4 flex flex-col min-w-0">
           {activeNoteId ? (
             <>
               {/* Note Title & Action Bar */}
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Tiêu đề ghi chú..."
-                  className="text-lg font-bold bg-transparent border-b border-slate-200 dark:border-slate-800 pb-1 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 flex-1"
+                  className="text-base sm:text-lg font-bold bg-transparent border-b border-slate-200 dark:border-slate-800 pb-1 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 flex-1 min-w-0"
                 />
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => setViewMode(viewMode === 'EDIT' ? 'PREVIEW' : 'EDIT')}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300"
+                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap"
                   >
                     {viewMode === 'EDIT' ? '👁️ Xem Trước' : '✏️ Chỉnh Sửa'}
                   </button>
@@ -221,97 +220,97 @@ export const RichNotesEditor: React.FC = () => {
                   <button
                     onClick={handleSaveNote}
                     disabled={isSaving}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all"
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap"
                   >
-                    <Save className="w-4 h-4" />
+                    <Save className="w-4 h-4 flex-shrink-0" />
                     <span>{isSaving ? 'Đang lưu...' : 'Lưu Ghi Chú'}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Formatting Toolbar */}
-              <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-100 dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 text-xs">
+              {/* Formatting Toolbar (Strict Single Line Scrollable Pills) */}
+              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-100 dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 text-xs overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => insertSnippet('# Ý Lớn H1')}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                   title="Chèn Ý Lớn H1"
                 >
-                  <Heading1 className="w-3.5 h-3.5 text-amber-500" />
+                  <Heading1 className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
                   <span>H1 (Ý lớn)</span>
                 </button>
 
                 <button
                   onClick={() => insertSnippet('## Ý Vừa H2')}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                   title="Chèn Ý Vừa H2"
                 >
-                  <Heading2 className="w-3.5 h-3.5 text-indigo-400" />
+                  <Heading2 className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
                   <span>H2 (Ý vừa)</span>
                 </button>
 
                 <button
                   onClick={() => insertSnippet('### Ý Nhỏ H3')}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                   title="Chèn Ý Nhỏ H3"
                 >
-                  <Heading3 className="w-3.5 h-3.5 text-emerald-400" />
+                  <Heading3 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                   <span>H3 (Ý nhỏ)</span>
                 </button>
 
                 <button
                   onClick={() => insertSnippet('- Ý con 1\n  - Ý bé hơn 1.1\n    - Ý bé hơn nữa 1.1.1')}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                   title="Thụt lề ý bé"
                 >
-                  <List className="w-3.5 h-3.5 text-sky-400" />
+                  <List className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
                   <span>Ý Bé Thụt Lề</span>
                 </button>
 
                 <button
                   onClick={() => insertSnippet('| Tiêu Đề 1 | Tiêu Đề 2 | Tiêu Đề 3 |\n| --- | --- | --- |\n| Nội dung 1 | Nội dung 2 | Nội dung 3 |\n| Nội dung 4 | Nội dung 5 | Nội dung 6 |')}
-                  className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 font-bold flex items-center gap-1 border border-amber-500/30"
+                  className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 font-bold flex items-center gap-1 border border-amber-500/30 whitespace-nowrap flex-shrink-0"
                   title="Chèn Bảng Table"
                 >
-                  <Table className="w-3.5 h-3.5 text-amber-500" />
+                  <Table className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
                   <span>Chèn Bảng (Table)</span>
                 </button>
 
                 <button
                   onClick={() => insertSnippet('> 💡 Ghi chú quan trọng: Hãy duy trì kỷ luật mỗi ngày!')}
-                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-white dark:bg-[#0D1117] hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                 >
-                  <Quote className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Callout Quote</span>
+                  <Quote className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                  <span>Quote</span>
                 </button>
               </div>
 
               {/* Editor vs Preview Mode */}
               {viewMode === 'EDIT' ? (
                 <textarea
-                  rows={15}
+                  rows={12}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Bắt đầu gõ ghi chú của bạn tại đây..."
                   className="w-full flex-1 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-[#0D1117] text-slate-100 font-mono text-xs leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none"
                 />
               ) : (
-                <div className="w-full flex-1 p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-[#161B22] text-slate-100 font-sans prose dark:prose-invert max-w-none text-xs leading-relaxed whitespace-pre-wrap">
+                <div className="w-full flex-1 p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-[#161B22] text-slate-100 font-sans prose dark:prose-invert max-w-none text-xs leading-relaxed whitespace-pre-wrap">
                   {content}
                 </div>
               )}
             </>
           ) : (
-            <div className="p-12 text-center border-dashed border-2 border-slate-200 dark:border-slate-800 rounded-2xl my-auto">
+            <div className="p-8 text-center border-dashed border-2 border-slate-200 dark:border-slate-800 rounded-2xl my-auto">
               <FileText className="w-10 h-10 text-amber-500 mx-auto mb-2" />
               <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm">
                 Chưa chọn ghi chú nào
               </h4>
-              <p className="text-xs text-slate-500 mt-1 mb-4">
-                Hãy chọn 1 ghi chú bên trái hoặc bấm tạo ghi chú mới để bắt đầu!
+              <p className="text-xs text-slate-500 mt-1 mb-3">
+                Hãy chọn 1 ghi chú bên trái hoặc bấm tạo ghi chú mới!
               </p>
               <button
                 onClick={handleCreateNewNote}
-                className="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs"
+                className="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs whitespace-nowrap"
               >
                 Tạo Ghi Chú Mới
               </button>

@@ -16,28 +16,27 @@ export const SavingsVault: React.FC<SavingsVaultProps> = ({
     return new Intl.NumberFormat('vi-VN').format(num) + ' VNĐ';
   };
 
-  // Fun rewards conversion milestones
   const bobaCups = Math.floor(savedTotal / 30000);
   const books = Math.floor(savedTotal / 100000);
 
   return (
-    <div className="modern-card p-6 border-slate-200 dark:border-slate-800 bg-gradient-to-br from-emerald-500/10 via-[#0D1117] to-amber-500/10 relative overflow-hidden">
+    <div className="modern-card p-4 sm:p-6 border-slate-200 dark:border-slate-800 bg-gradient-to-br from-emerald-500/10 via-[#0D1117] to-amber-500/10 relative overflow-hidden">
       
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-4 sm:mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-            <PiggyBank className="w-6 h-6" />
+          <div className="p-2 sm:p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <span>Ví Tiền Kỷ Luật (Tiết Kiệm Giả Tưởng)</span>
               <Sparkles className="w-4 h-4 text-emerald-400" />
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
               Quy đổi thói quen tốt thành tiền tiết kiệm thực tế để nhân đôi động lực!
             </p>
           </div>
@@ -50,10 +49,10 @@ export const SavingsVault: React.FC<SavingsVaultProps> = ({
       </div>
 
       {/* Main Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         
         {/* Today's Saved */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 space-y-1.5 sm:space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold text-slate-400">
             <span>Tiết Kiệm / Thưởng Hôm Nay 💰</span>
             <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full text-[10px]">Hôm nay</span>
@@ -67,7 +66,7 @@ export const SavingsVault: React.FC<SavingsVaultProps> = ({
         </div>
 
         {/* Total All-time Saved */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 space-y-1.5 sm:space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold text-slate-400">
             <span>Tổng Tiền Đã Tích Lũy 🏦</span>
             <span className="text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full text-[10px]">Tất cả</span>
@@ -83,19 +82,19 @@ export const SavingsVault: React.FC<SavingsVaultProps> = ({
       </div>
 
       {/* Milestones Conversion & Reward Examples */}
-      <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3 text-xs">
+      <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2.5 text-xs">
           <Gift className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <div className="text-slate-300">
             <span className="font-bold text-white">Quy Đổi Động Lực: </span>
-            <span>Số tiền bạn tích lũy tương đương <strong className="text-emerald-400">{bobaCups} ly trà sữa 🧋</strong> hoặc <strong className="text-amber-400">{books} cuốn sách hay 📚</strong>!</span>
+            <span>Số tiền tích lũy tương đương <strong className="text-emerald-400">{bobaCups} ly trà sữa 🧋</strong> hoặc <strong className="text-amber-400">{books} cuốn sách 📚</strong>!</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 flex-shrink-0">
-          <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">🍱 Nấu cơm: +35k</span>
-          <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">🥤 Nhịn nước ngọt: +10k</span>
-          <span className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700">🏃 Thể dục: +1k</span>
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-bold text-slate-400 flex-shrink-0">
+          <span className="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700">🍱 Nấu cơm: +35k</span>
+          <span className="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700">🥤 Nhịn nước ngọt: +10k</span>
+          <span className="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700">🏃 Thể dục: +1k</span>
         </div>
       </div>
 

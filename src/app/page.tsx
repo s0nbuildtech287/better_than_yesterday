@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { WelcomeWidget } from '@/components/WelcomeWidget';
@@ -21,6 +22,8 @@ import { Sparkles, CheckCircle2, PlusCircle, X, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns';
 
 export default function HomePage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [habits, setHabits] = useState<HabitItem[]>([]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [streakCount, setStreakCount] = useState<number>(0);
@@ -47,6 +50,22 @@ export default function HomePage() {
   const [selectedHabitForEdit, setSelectedHabitForEdit] = useState<HabitItem | null>(null);
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
+
+  // Login Check
+  useEffect(() => {
+    const isAuth = localStorage.getItem('bty_auth');
+    if (isAuth !== 'true') {
+      router.push('/login');
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('bty_auth');
+    document.cookie = 'bty_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    router.push('/login');
+  };
 
   useEffect(() => {
     if (isDarkMode) {
@@ -103,8 +122,10 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
 
   const handleToggleHabit = async (habitId: string, nextState: boolean) => {
     setCompletedIds((prev) =>
@@ -152,6 +173,17 @@ export default function HomePage() {
 
   const completedCount = habits.filter((h) => completedIds.includes(h.id)).length;
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-white">
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 h-6 text-amber-500 animate-spin" />
+          <span className="text-sm font-bold">Đang kiểm tra quyền truy cập xu4ns0n...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
@@ -168,6 +200,7 @@ export default function HomePage() {
         onToggleDarkMode={toggleDarkMode}
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Mobile Drawer Menu Overlay */}
@@ -200,6 +233,7 @@ export default function HomePage() {
                   setIsMotivationModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
+                onLogout={handleLogout}
               />
             </div>
           </div>
@@ -218,11 +252,11 @@ export default function HomePage() {
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
-        <main className="p-4 sm:p-8 max-w-[1600px] w-full mx-auto flex-1">
+        <main className="p-3.5 sm:p-8 max-w-[1600px] w-full mx-auto flex-1">
           
           {/* VIEW 1: TỔNG QUAN DASHBOARD */}
           {activeTab === 'ALL' && (
-            <div className="space-y-8 animate-fadeIn">
+            <div className="space-y-6 sm:space-y-8 animate-fadeIn">
               <WelcomeWidget
                 userName="Sơn"
                 streakCount={streakCount}
@@ -245,29 +279,29 @@ export default function HomePage() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <span>Thói Quen Cần Làm Hôm Nay</span>
-                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 whitespace-nowrap">
+                    <span>Thói Quen Hôm Nay</span>
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
                       Hôm nay
                     </span>
                   </h3>
                   <button
                     onClick={() => setActiveTab('HABITS')}
-                    className="flex items-center gap-1 text-xs font-bold text-amber-500 hover:text-amber-600 transition-colors"
+                    className="flex items-center gap-1 text-xs font-bold text-amber-500 hover:text-amber-600 transition-colors whitespace-nowrap"
                   >
-                    <span>Quản lý tất cả thói quen</span>
+                    <span>Quản lý tất cả</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {isLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="modern-card p-6 h-44 animate-pulse bg-slate-200/50 dark:bg-slate-800/50" />
                     ))}
                   </div>
                 ) : habits.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                     {habits.slice(0, 4).map((habit) => (
                       <HabitCard
                         key={habit.id}
@@ -280,7 +314,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="modern-card p-10 text-center border-dashed border-2 border-slate-300 dark:border-slate-800">
+                  <div className="modern-card p-8 sm:p-10 text-center border-dashed border-2 border-slate-300 dark:border-slate-800">
                     <CheckCircle2 className="w-10 h-10 text-amber-500 mx-auto mb-2" />
                     <h4 className="font-bold text-base text-slate-800 dark:text-slate-200">
                       Chưa có thói quen nào
@@ -290,7 +324,7 @@ export default function HomePage() {
                     </p>
                     <button
                       onClick={() => setIsAddModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md whitespace-nowrap"
                     >
                       <PlusCircle className="w-4 h-4" />
                       <span>Thêm Thói Quen Mới</span>
@@ -304,9 +338,9 @@ export default function HomePage() {
           {/* VIEW 2: QUẢN LÝ THÓI QUEN */}
           {activeTab === 'HABITS' && (
             <div className="space-y-6 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-slate-900 border border-amber-500/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-slate-900 border border-amber-500/30">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                     Quản Lý Thói Quen Của Bạn ⚡
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -316,24 +350,24 @@ export default function HomePage() {
 
                 <button
                   onClick={() => setIsAddModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md transition-all self-start sm:self-auto"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-md transition-all self-start sm:self-auto whitespace-nowrap"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Thêm Thói Quen Mới</span>
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {[
-                  { id: 'ALL', label: 'Tất Cả Thói Quen ✨' },
-                  { id: 'MORNING', label: 'Buổi Sáng 🌅' },
-                  { id: 'EVENING', label: 'Buổi Tối 🌙' },
-                  { id: 'ANYTIME', label: 'Bất Kỳ Lúc Nào ⚡' },
+                  { id: 'ALL', label: 'Tất cả ✨' },
+                  { id: 'MORNING', label: 'Sáng 🌅' },
+                  { id: 'EVENING', label: 'Tối 🌙' },
+                  { id: 'ANYTIME', label: 'Linh hoạt ⚡' },
                 ].map((t) => (
                   <button
                     key={t.id}
                     onClick={() => setFilterTime(t.id)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0 ${
                       filterTime === t.id
                         ? 'bg-amber-500 text-white shadow-sm'
                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
@@ -345,13 +379,13 @@ export default function HomePage() {
               </div>
 
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="modern-card p-6 h-44 animate-pulse bg-slate-200/50 dark:bg-slate-800/50" />
                   ))}
                 </div>
               ) : filteredHabits.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                   {filteredHabits.map((habit) => (
                     <HabitCard
                       key={habit.id}
@@ -364,14 +398,14 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <div className="modern-card p-12 text-center border-dashed border-2 border-slate-300 dark:border-slate-800">
+                <div className="modern-card p-8 sm:p-12 text-center border-dashed border-2 border-slate-300 dark:border-slate-800">
                   <CheckCircle2 className="w-10 h-10 text-amber-500 mx-auto mb-2" />
                   <h4 className="font-bold text-base text-slate-800 dark:text-slate-200">
                     Chưa có thói quen nào ở danh mục này
                   </h4>
                   <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs"
+                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs whitespace-nowrap"
                   >
                     <PlusCircle className="w-4 h-4" />
                     <span>Tạo Thói Quen Mới</span>

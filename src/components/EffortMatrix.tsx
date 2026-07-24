@@ -25,10 +25,8 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Get leading empty slots for Monday start
   const startDayOfWeek = (getDay(monthStart) + 6) % 7;
 
-  // Real effort metrics from database
   const totalEffortDaysInMonth = daysInMonth.filter((d) => {
     const dStr = format(d, 'yyyy-MM-dd');
     return (completedDatesMap[dStr] || 0) > 0;
@@ -38,27 +36,27 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
       
       {/* Column 1 & 2: Interactive 30-Day Calendar Matrix */}
-      <div className="xl:col-span-2 modern-card p-6 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0D1117] flex flex-col justify-between">
+      <div className="xl:col-span-2 modern-card p-4 sm:p-6 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0D1117] flex flex-col justify-between">
         
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center justify-between gap-4 mb-4 sm:mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>Ma Trận Nỗ Lực Thực Tế</span>
                 <Sparkles className="w-4 h-4 text-amber-400" />
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
                 Hiển thị tiến độ hoàn thành thói quen thực tế từ Database
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 capitalize mr-2">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 capitalize mr-1 sm:mr-2">
               {format(currentDate, 'MMMM yyyy', { locale: vi })}
             </span>
           </div>
@@ -68,7 +66,7 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
         <div className="mb-4">
           
           {/* Days of week header */}
-          <div className="grid grid-cols-7 text-center font-bold text-xs text-slate-400 dark:text-slate-500 pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-7 text-center font-bold text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
             <span>T2</span>
             <span>T3</span>
             <span>T4</span>
@@ -79,11 +77,11 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
           </div>
 
           {/* Days Grid */}
-          <div className="grid grid-cols-7 gap-2 text-center">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center">
             
             {/* Empty slots before day 1 */}
             {Array.from({ length: startDayOfWeek }).map((_, i) => (
-              <div key={`empty-${i}`} className="h-12 sm:h-14 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 border border-transparent opacity-30" />
+              <div key={`empty-${i}`} className="h-10 sm:h-14 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 border border-transparent opacity-30" />
             ))}
 
             {/* Month days */}
@@ -93,7 +91,6 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
               const dayNum = format(day, 'd');
               const dateStr = format(day, 'yyyy-MM-dd');
               
-              // Real score from database
               const score = completedDatesMap[dateStr] || (isToday && completedCount > 0 ? Math.round((completedCount / (totalCount || 1)) * 100) : 0);
               const isDone = score > 0;
 
@@ -101,7 +98,7 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
                 <button
                   key={day.toString()}
                   onClick={() => setSelectedDay(day)}
-                  className={`h-12 sm:h-14 rounded-2xl border p-1.5 flex flex-col items-center justify-between transition-all transform active:scale-95 ${
+                  className={`h-10 sm:h-14 rounded-xl sm:rounded-2xl border p-1 sm:p-1.5 flex flex-col items-center justify-between transition-all transform active:scale-95 ${
                     isSelected
                       ? 'bg-amber-500 text-white border-amber-400 shadow-md shadow-amber-500/30 ring-2 ring-amber-400'
                       : isToday
@@ -111,11 +108,11 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
                       : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400'
                   }`}
                 >
-                  <span className="text-xs font-bold">{dayNum}</span>
+                  <span className="text-[10px] sm:text-xs font-bold">{dayNum}</span>
                   {isDone ? (
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-emerald-400 animate-pulse'}`} />
+                    <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-emerald-400 animate-pulse'}`} />
                   ) : (
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-slate-300 dark:bg-slate-700'}`} />
+                    <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-slate-300 dark:bg-slate-700'}`} />
                   )}
                 </button>
               );
@@ -125,7 +122,7 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
         </div>
 
         {/* Selected Day Status */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-xs font-medium text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span>Ngày chọn: {format(selectedDay, 'dd/MM/yyyy')}</span>
@@ -142,7 +139,7 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
       </div>
 
       {/* Column 3: Real Effort Indicators */}
-      <div className="modern-card p-6 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0D1117] flex flex-col justify-between space-y-6">
+      <div className="modern-card p-4 sm:p-6 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0D1117] flex flex-col justify-between space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-4">
             <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
@@ -158,20 +155,20 @@ export const EffortMatrix: React.FC<EffortMatrixProps> = ({
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1">
               <div className="text-xs text-slate-400">Tổng thói quen bạn đã tạo:</div>
-              <div className="text-xl font-extrabold text-slate-900 dark:text-slate-100">{totalCount} thói quen</div>
+              <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">{totalCount} thói quen</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1">
               <div className="text-xs text-slate-400">Số ngày có ghi nhận nỗ lực:</div>
-              <div className="text-xl font-extrabold text-emerald-400">{totalEffortDaysInMonth} ngày</div>
+              <div className="text-lg sm:text-xl font-extrabold text-emerald-400">{totalEffortDaysInMonth} ngày</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1">
               <div className="text-xs text-slate-400">Chuỗi ngày kỷ luật liên tục:</div>
-              <div className="text-xl font-extrabold text-amber-400">{streakCount} ngày liên tục 🔥</div>
+              <div className="text-lg sm:text-xl font-extrabold text-amber-400">{streakCount} ngày liên tục 🔥</div>
             </div>
           </div>
         </div>
