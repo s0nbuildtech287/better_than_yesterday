@@ -12,7 +12,6 @@ export async function GET() {
       include: {
         completions: {
           where: { completed: true },
-          select: { logDate: true, note: true },
         },
       },
       orderBy: { createdAt: 'asc' },
