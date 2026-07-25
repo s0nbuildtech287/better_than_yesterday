@@ -489,6 +489,7 @@ export default function HomePage() {
         onClose={() => setSelectedHabitForDetail(null)}
         onEdit={(h) => setSelectedHabitForEdit(h)}
         onDelete={handleDeleteHabit}
+        onUpdated={fetchData}
       />
 
       <EmergencyMotivationModal

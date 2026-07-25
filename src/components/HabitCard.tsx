@@ -21,6 +21,7 @@ export interface HabitItem {
   streakCount?: number;
   breakCount?: number;
   completedDates?: string[];
+  completionNotesMap?: Record<string, string>;
 }
 
 interface HabitCardProps {

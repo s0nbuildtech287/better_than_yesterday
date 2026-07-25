@@ -30,6 +30,7 @@ model HabitCompletion {
   habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
   logDate     String   // YYYY-MM-DD
   completed   Boolean  @default(true)
+  note        String?  // Ghi chú riêng cho thói quen ngày đó (vd: "Chạy 5km", "Đá bóng")
   completedAt DateTime @default(now())
 
   @@unique([habitId, logDate])

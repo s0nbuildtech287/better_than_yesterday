@@ -125,7 +125,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { habitId, date, completed } = body;
+    const { habitId, date, completed, note } = body;
 
     const logDate = date || format(new Date(), 'yyyy-MM-dd');
 
@@ -133,13 +133,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'habitId là bắt buộc' }, { status: 400 });
     }
 
-    if (completed) {
+    if (completed !== false) {
       await prisma.habitCompletion.upsert({
         where: {
           habitId_logDate: { habitId, logDate },
         },
-        update: { completed: true },
-        create: { habitId, logDate, completed: true },
+        update: {
+          completed: true,
+          ...(note !== undefined ? { note: note || null } : {}),
+        },
+        create: {
+          habitId,
+          logDate,
+          completed: true,
+          note: note || null,
+        },
       });
     } else {
       await prisma.habitCompletion.deleteMany({

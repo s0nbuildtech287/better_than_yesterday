@@ -12,7 +12,7 @@ export async function GET() {
       include: {
         completions: {
           where: { completed: true },
-          select: { logDate: true },
+          select: { logDate: true, note: true },
         },
       },
       orderBy: { createdAt: 'asc' },
@@ -23,6 +23,12 @@ export async function GET() {
 
     const habits = rawHabits.map((h: any) => {
       const completedDatesSet = new Set<string>(h.completions.map((c: any) => c.logDate));
+      const completionNotesMap: Record<string, string> = {};
+      h.completions.forEach((c: any) => {
+        if (c.note) {
+          completionNotesMap[c.logDate] = c.note;
+        }
+      });
 
       // Calculate current streak for this habit
       let streak = 0;
@@ -74,6 +80,7 @@ export async function GET() {
         streakCount: streak,
         breakCount,
         completedDates: Array.from(completedDatesSet),
+        completionNotesMap,
       };
     });
 
