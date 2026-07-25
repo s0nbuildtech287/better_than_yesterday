@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     }
 
     if (completed !== false) {
-      await prisma.habitCompletion.upsert({
+      await (prisma.habitCompletion as any).upsert({
         where: {
           habitId_logDate: { habitId, logDate },
         },
