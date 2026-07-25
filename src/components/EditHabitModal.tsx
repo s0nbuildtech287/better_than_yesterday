@@ -76,7 +76,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.ok && (data.success || data.habit)) {
         onUpdated();
         onClose();
       } else {

@@ -63,7 +63,7 @@ export const AddHabitModal: React.FC<AddHabitModalProps> = ({
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.ok && (data.success || data.habit)) {
         setTitle('');
         setDescription('');
         setTimeOfDay('ANYTIME');

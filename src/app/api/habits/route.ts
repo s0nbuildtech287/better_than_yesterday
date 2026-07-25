@@ -108,7 +108,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ habit }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+    return NextResponse.json({ success: true, habit }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error creating habit:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -138,7 +138,7 @@ export async function PUT(request: Request) {
       },
     });
 
-    return NextResponse.json({ habit: updated }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+    return NextResponse.json({ success: true, habit: updated }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error: any) {
     console.error('Error updating habit:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
