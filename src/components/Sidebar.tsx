@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { 
-  Sparkles, Sun, Moon, Flame, Zap, PlusCircle, LogOut,
+  Sparkles, Sun, Moon, Flame, Zap, PlusCircle, LogOut, Wallet,
   LayoutDashboard, Camera, BarChart3, Trophy, CheckSquare, FileText 
 } from 'lucide-react';
 
@@ -31,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const NAV_ITEMS = [
     { id: 'ALL', label: 'Tổng Quan Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: 'FINANCE', label: 'Quản Lý Tài Chính', icon: <Wallet className="w-5 h-5" /> },
     { id: 'HABITS', label: 'Quản Lý Thói Quen', icon: <CheckSquare className="w-5 h-5" /> },
     { id: 'NOTES', label: 'Ghi Chú & Todo List', icon: <FileText className="w-5 h-5" /> },
     { id: 'GALLERY', label: 'Kho Ảnh Minh Chứng', icon: <Camera className="w-5 h-5" /> },

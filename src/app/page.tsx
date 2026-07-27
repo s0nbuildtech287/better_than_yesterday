@@ -192,7 +192,11 @@ export default function HomePage() {
         className="hidden md:flex"
         activeTab={activeTab}
         onTabChange={(tab) => {
-          setActiveTab(tab);
+          if (tab === 'FINANCE') {
+            router.push('/tai-chinh');
+          } else {
+            setActiveTab(tab);
+          }
           setIsMobileMenuOpen(false);
         }}
         streakCount={streakCount}
@@ -219,7 +223,11 @@ export default function HomePage() {
                 className="w-full h-full border-none p-0"
                 activeTab={activeTab}
                 onTabChange={(tab) => {
-                  setActiveTab(tab);
+                  if (tab === 'FINANCE') {
+                    router.push('/tai-chinh');
+                  } else {
+                    setActiveTab(tab);
+                  }
                   setIsMobileMenuOpen(false);
                 }}
                 streakCount={streakCount}

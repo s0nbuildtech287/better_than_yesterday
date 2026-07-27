@@ -75,3 +75,47 @@ model NoteItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model FinanceIncome {
+  id            String   @id @default(cuid())
+  monthYear     String   @unique // YYYY-MM (e.g. 2026-07)
+  monthlySalary Float    @default(7000000)
+  bonusIncome   Float    @default(0)
+  totalIncome   Float    @default(7000000)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FinanceJar {
+  id             String               @id @default(cuid())
+  name           String               // e.g., "Tiết kiệm & Dự phòng", "Đầu tư Cổ phiếu", "Du lịch"
+  categoryKey    String               // SAVINGS, STOCKS, BUSINESS, TRAVEL, FREE_SPEND
+  percentage     Float                // e.g., 20.0
+  icon           String               @default("PiggyBank")
+  color          String               @default("#10b981")
+  currentBalance Float                @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  transactions   FinanceTransaction[]
+  notes          FinanceNote[]
+}
+
+model FinanceTransaction {
+  id          String     @id @default(cuid())
+  jarId       String
+  jar         FinanceJar @relation(fields: [jarId], references: [id], onDelete: Cascade)
+  type        String     // IN (Nạp tiền), OUT (Chi tiêu)
+  amount      Float
+  description String
+  txDate      String     // YYYY-MM-DD
+  createdAt   DateTime   @default(now())
+}
+
+model FinanceNote {
+  id        String     @id @default(cuid())
+  jarId     String
+  jar       FinanceJar @relation(fields: [jarId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
