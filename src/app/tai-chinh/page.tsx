@@ -6,7 +6,7 @@ import {
   Wallet, PiggyBank, TrendingUp, Briefcase, Plane, ShoppingBag, 
   PlusCircle, MinusCircle, ArrowRightLeft, DollarSign, PieChart, 
   Sparkles, RefreshCw, CheckCircle2, ChevronLeft, Calendar, Info, Layers,
-  Plus, Trash2, Edit3, X, FileText, Clock, Send, Coins
+  Plus, Trash2, Edit3, X, FileText, Clock, Send, Coins, AlertTriangle
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 
@@ -81,6 +81,7 @@ export default function FinancePage() {
   const [jarPercentage, setJarPercentage] = useState<string>('10');
   const [jarColor, setJarColor] = useState<string>('#10b981');
   const [jarIcon, setJarIcon] = useState<string>('PiggyBank');
+  const [jarErrorMsg, setJarErrorMsg] = useState<string>('');
 
   // Jar Notebook Modal State
   const [selectedJarForNotes, setSelectedJarForNotes] = useState<FinanceJar | null>(null);
@@ -126,6 +127,17 @@ export default function FinancePage() {
   useEffect(() => {
     fetchFinanceData();
   }, []);
+
+  const totalPercentage = jars.reduce((acc, j) => acc + j.percentage, 0);
+  const totalBalanceAllJars = jars.reduce((acc, j) => acc + j.currentBalance, 0);
+  const totalIncomeValue = income?.totalIncome || 7000000;
+  
+  // Calculate total allocated target & actual remaining free unallocated income
+  const totalAllocatedTargetAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
+  const remainingFreeIncome = totalIncomeValue - totalBalanceAllJars;
+  
+  const rawTotalActualPct = totalIncomeValue > 0 ? (totalBalanceAllJars / totalIncomeValue) * 100 : 0;
+  const totalActualPctFormatted = Number.isInteger(rawTotalActualPct) ? rawTotalActualPct.toString() : rawTotalActualPct.toFixed(1);
 
   const fetchJarNotes = async (jarId: string) => {
     setIsLoadingNotes(true);
@@ -209,6 +221,24 @@ export default function FinancePage() {
 
   const handleSaveJar = async (e: React.FormEvent) => {
     e.preventDefault();
+    setJarErrorMsg('');
+
+    const inputPct = parseFloat(jarPercentage) || 0;
+    if (inputPct <= 0) {
+      setJarErrorMsg('Tỷ lệ phần trăm phải lớn hơn 0%');
+      return;
+    }
+
+    const otherJarsTotal = editingJar 
+      ? totalPercentage - editingJar.percentage 
+      : totalPercentage;
+    const maxAllowed = 100 - otherJarsTotal;
+
+    if (inputPct > maxAllowed) {
+      setJarErrorMsg(`Tỷ lệ % vượt quá 100%! Bạn chỉ còn tối đa ${maxAllowed}% thu nhập chưa phân bổ.`);
+      return;
+    }
+
     try {
       if (editingJar) {
         await fetch('/api/finance/jars', {
@@ -218,7 +248,7 @@ export default function FinancePage() {
             singleJar: {
               id: editingJar.id,
               name: jarName,
-              percentage: parseFloat(jarPercentage),
+              percentage: inputPct,
               color: jarColor,
               icon: jarIcon,
             },
@@ -230,7 +260,7 @@ export default function FinancePage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: jarName,
-            percentage: parseFloat(jarPercentage),
+            percentage: inputPct,
             color: jarColor,
             icon: jarIcon,
             currentBalance: 0,
@@ -318,11 +348,20 @@ export default function FinancePage() {
   };
 
   const openCreateJarModal = () => {
+    const availablePct = Math.max(0, 100 - totalPercentage);
+    
+    if (totalPercentage >= 100) {
+      alert('Bạn đã phân bổ 100% thu nhập vào các hũ hiện có! Vui lòng giảm tỷ lệ % của hũ khác trước khi tạo hũ mới.');
+      return;
+    }
+
     setEditingJar(null);
     setJarName('');
-    setJarPercentage('10');
+    // Auto fill remaining percentage if <= 10% or default to available percentage
+    setJarPercentage(availablePct.toString());
     setJarColor('#10b981');
     setJarIcon('PiggyBank');
+    setJarErrorMsg('');
     setIsJarModalOpen(true);
   };
 
@@ -332,19 +371,9 @@ export default function FinancePage() {
     setJarPercentage(jar.percentage.toString());
     setJarColor(jar.color);
     setJarIcon(jar.icon);
+    setJarErrorMsg('');
     setIsJarModalOpen(true);
   };
-
-  const totalPercentage = jars.reduce((acc, j) => acc + j.percentage, 0);
-  const totalBalanceAllJars = jars.reduce((acc, j) => acc + j.currentBalance, 0);
-  const totalIncomeValue = income?.totalIncome || 7000000;
-  
-  // Calculate total allocated target & actual remaining free unallocated income
-  const totalAllocatedTargetAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
-  const remainingFreeIncome = totalIncomeValue - totalBalanceAllJars;
-  
-  const rawTotalActualPct = totalIncomeValue > 0 ? (totalBalanceAllJars / totalIncomeValue) * 100 : 0;
-  const totalActualPctFormatted = Number.isInteger(rawTotalActualPct) ? rawTotalActualPct.toString() : rawTotalActualPct.toFixed(1);
 
   const getJarIcon = (iconName: string) => {
     switch (iconName) {
@@ -356,6 +385,11 @@ export default function FinancePage() {
       default: return <Wallet className="w-6 h-6" />;
     }
   };
+
+  // Max allowed percentage for modal display
+  const maxAllowedModalPct = editingJar 
+    ? 100 - (totalPercentage - editingJar.percentage) 
+    : 100 - totalPercentage;
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
@@ -825,6 +859,13 @@ export default function FinancePage() {
               </button>
             </div>
 
+            {jarErrorMsg && (
+              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{jarErrorMsg}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSaveJar} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-1">Tên Hũ Tài Chính:</label>
@@ -839,16 +880,27 @@ export default function FinancePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">Tỷ Lệ Phần Trăm % (Thu nhập):</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-400">Tỷ Lệ Phần Trăm % (Thu nhập):</label>
+                  <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                    Tối đa có thể chọn: {maxAllowedModalPct}%
+                  </span>
+                </div>
                 <input
                   type="number"
                   step="0.5"
                   required
-                  placeholder="Ví dụ: 15"
+                  placeholder={`Tối đa: ${maxAllowedModalPct}%`}
                   value={jarPercentage}
-                  onChange={(e) => setJarPercentage(e.target.value)}
+                  onChange={(e) => {
+                    setJarPercentage(e.target.value);
+                    setJarErrorMsg('');
+                  }}
                   className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-sm focus:outline-none focus:border-amber-500"
                 />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  💡 Tự động gợi ý mức % còn lại chưa phân bổ. Không thể tạo nếu tổng vượt 100%.
+                </p>
               </div>
 
               <div>
