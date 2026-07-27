@@ -535,31 +535,31 @@ export default function FinancePage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {jars.map((jar) => {
                   const allocatedAmount = Math.round((totalIncomeValue * jar.percentage) / 100);
 
                   return (
                     <div
                       key={jar.id}
-                      className="p-6 rounded-3xl bg-white dark:bg-[#121724] border border-slate-200 dark:border-slate-800/80 space-y-5 shadow-lg hover:border-amber-500/40 transition-all flex flex-col justify-between"
+                      className="p-6 rounded-3xl bg-white dark:bg-[#121724] border border-slate-200 dark:border-slate-800/80 shadow-lg hover:border-amber-500/40 transition-all flex flex-col justify-between h-full"
                     >
-                      {/* Top Header & Actions */}
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
+                      {/* Top Header & Title Section - Perfect Alignment */}
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 min-w-0 flex-1">
                             <div
-                              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md"
+                              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shrink-0 mt-0.5"
                               style={{ backgroundColor: jar.color }}
                             >
                               {getJarIcon(jar.icon)}
                             </div>
-                            <div>
-                              <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 leading-snug line-clamp-2 min-h-[44px] flex items-center">
                                 {jar.name}
                               </h3>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                              <div className="flex items-center gap-2 mt-1.5">
+                                <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
                                   {jar.percentage}% Thu nhập
                                 </span>
                               </div>
@@ -567,7 +567,7 @@ export default function FinancePage() {
                           </div>
 
                           {/* Edit / Delete Actions */}
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => openEditJarModal(jar)}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors"
@@ -585,7 +585,7 @@ export default function FinancePage() {
                           </div>
                         </div>
 
-                        {/* Balance Card */}
+                        {/* Balance Card - Perfectly aligned across all cards */}
                         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#181F30] border border-slate-100 dark:border-slate-800 space-y-1">
                           <div className="flex justify-between text-[11px] font-bold text-slate-400">
                             <span>SỐ DƯ HŨ HIỆN TẠI</span>
@@ -598,7 +598,7 @@ export default function FinancePage() {
                       </div>
 
                       {/* Jar Actions: Deposit, Spend & Notebook */}
-                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
+                      <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 space-y-2 mt-4">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
@@ -606,7 +606,7 @@ export default function FinancePage() {
                               setTxType('IN');
                               setTxAmount(allocatedAmount > 0 ? allocatedAmount.toString() : '');
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-emerald-500/20"
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-emerald-500/20 cursor-pointer"
                           >
                             <PlusCircle className="w-4 h-4" />
                             <span>+ Nạp Tiền</span>
@@ -618,7 +618,7 @@ export default function FinancePage() {
                               setTxType('OUT');
                               setTxAmount('');
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 dark:text-rose-400 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-rose-500/20"
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 dark:text-rose-400 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-rose-500/20 cursor-pointer"
                           >
                             <MinusCircle className="w-4 h-4" />
                             <span>- Chi Tiêu</span>
@@ -628,7 +628,7 @@ export default function FinancePage() {
                         {/* Dedicated Notebook / Notes Trigger */}
                         <button
                           onClick={() => handleOpenNotes(jar)}
-                          className="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs transition-all flex items-center justify-center gap-2 border border-slate-700"
+                          className="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs transition-all flex items-center justify-center gap-2 border border-slate-700 cursor-pointer"
                         >
                           <FileText className="w-4 h-4 text-amber-400" />
                           <span>📝 Sổ Tay Ghi Chú & Nhật Ký Quỹ</span>
@@ -711,7 +711,7 @@ export default function FinancePage() {
               </h3>
               <button
                 onClick={() => setSelectedJarForTx(null)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
+                className="text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -758,14 +758,14 @@ export default function FinancePage() {
                 <button
                   type="button"
                   onClick={() => setSelectedJarForTx(null)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700"
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700 cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingTx}
-                  className={`px-6 py-2.5 rounded-xl font-bold text-xs text-white shadow-md transition-all ${
+                  className={`px-6 py-2.5 rounded-xl font-bold text-xs text-white shadow-md transition-all cursor-pointer ${
                     txType === 'IN' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-rose-500 hover:bg-rose-600'
                   }`}
                 >
@@ -787,7 +787,7 @@ export default function FinancePage() {
               </h3>
               <button
                 onClick={() => setIsJarModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
+                className="text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -852,13 +852,13 @@ export default function FinancePage() {
                 <button
                   type="button"
                   onClick={() => setIsJarModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700"
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700 cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md transition-all"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md transition-all cursor-pointer"
                 >
                   {editingJar ? 'Lưu Thay Đổi' : 'Tạo Hũ Mới'}
                 </button>
@@ -889,7 +889,7 @@ export default function FinancePage() {
               </div>
               <button
                 onClick={() => setSelectedJarForNotes(null)}
-                className="text-slate-400 hover:text-white text-xs font-bold p-1.5"
+                className="text-slate-400 hover:text-white text-xs font-bold p-1.5 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -909,7 +909,7 @@ export default function FinancePage() {
                 <button
                   type="submit"
                   disabled={!newNoteContent.trim()}
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Thêm Ghi Chú</span>
@@ -938,7 +938,7 @@ export default function FinancePage() {
                       </div>
                       <button
                         onClick={() => handleDeleteNote(note.id)}
-                        className="text-slate-500 hover:text-rose-400 p-1 opacity-80 group-hover:opacity-100 transition-opacity"
+                        className="text-slate-500 hover:text-rose-400 p-1 opacity-80 group-hover:opacity-100 transition-opacity cursor-pointer"
                         title="Xóa ghi chú"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
