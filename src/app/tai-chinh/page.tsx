@@ -342,6 +342,9 @@ export default function FinancePage() {
   // Calculate total allocated target & actual remaining free unallocated income
   const totalAllocatedTargetAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
   const remainingFreeIncome = totalIncomeValue - totalBalanceAllJars;
+  
+  const rawTotalActualPct = totalIncomeValue > 0 ? (totalBalanceAllJars / totalIncomeValue) * 100 : 0;
+  const totalActualPctFormatted = Number.isInteger(rawTotalActualPct) ? rawTotalActualPct.toString() : rawTotalActualPct.toFixed(1);
 
   const getJarIcon = (iconName: string) => {
     switch (iconName) {
@@ -524,13 +527,16 @@ export default function FinancePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex flex-wrap items-center gap-2.5">
                   <span>Danh Sách Hũ Tài Chính ({jars.length})</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-400 font-bold border border-slate-700">
+                  <span className="text-xs px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">
                     Định mức: {totalPercentage}% ({formatVND(totalAllocatedTargetAmount)})
                   </span>
+                  <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                    Thực tế: {totalActualPctFormatted}% ({formatVND(totalBalanceAllJars)})
+                  </span>
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Hiển thị cả Tỷ lệ % Định mức và Tỷ lệ % Thực tế dựa trên số tiền thực có trong hũ
                 </p>
               </div>
