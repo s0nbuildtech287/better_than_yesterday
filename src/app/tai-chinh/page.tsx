@@ -559,7 +559,8 @@ export default function FinancePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {jars.map((jar) => {
                   const allocatedAmount = Math.round((totalIncomeValue * jar.percentage) / 100);
-                  const actualPercentage = totalIncomeValue > 0 ? ((jar.currentBalance / totalIncomeValue) * 100).toFixed(1) : '0';
+                  const rawActualPct = totalIncomeValue > 0 ? (jar.currentBalance / totalIncomeValue) * 100 : 0;
+                  const actualPctFormatted = Number.isInteger(rawActualPct) ? rawActualPct.toString() : rawActualPct.toFixed(1);
 
                   return (
                     <div
@@ -580,12 +581,12 @@ export default function FinancePage() {
                               <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 leading-snug line-clamp-2 min-h-[44px] flex items-center">
                                 {jar.name}
                               </h3>
-                              <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                                <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                                  Định mức: {jar.percentage}%
+                              <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                                <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                                  Định mức: {jar.percentage}% ({formatVND(allocatedAmount)})
                                 </span>
-                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                  Thực tế: {actualPercentage}%
+                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                                  Thực tế: {actualPctFormatted}% ({formatVND(jar.currentBalance)})
                                 </span>
                               </div>
                             </div>
