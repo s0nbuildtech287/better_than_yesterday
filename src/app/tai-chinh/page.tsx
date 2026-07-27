@@ -6,7 +6,7 @@ import {
   Wallet, PiggyBank, TrendingUp, Briefcase, Plane, ShoppingBag, 
   PlusCircle, MinusCircle, ArrowRightLeft, DollarSign, PieChart, 
   Sparkles, RefreshCw, CheckCircle2, ChevronLeft, Calendar, Info, Layers,
-  Plus, Trash2, Edit3, X, FileText, Clock, Send
+  Plus, Trash2, Edit3, X, FileText, Clock, Send, Coins
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 
@@ -338,6 +338,10 @@ export default function FinancePage() {
   const totalPercentage = jars.reduce((acc, j) => acc + j.percentage, 0);
   const totalBalanceAllJars = jars.reduce((acc, j) => acc + j.currentBalance, 0);
   const totalIncomeValue = income?.totalIncome || 7000000;
+  
+  // Calculate total allocated target & remaining unallocated income
+  const totalAllocatedAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
+  const remainingUnallocatedIncome = totalIncomeValue - totalAllocatedAmount;
 
   const getJarIcon = (iconName: string) => {
     switch (iconName) {
@@ -393,18 +397,35 @@ export default function FinancePage() {
               </p>
             </div>
 
-            {/* Quick Summary Card */}
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#131825] border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/20">
-                <Wallet className="w-5 h-5" />
+            {/* Quick Summary Cards (Total Balance + Remaining Unallocated Income) */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Card 1: Total Balance in Jars */}
+              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#131825] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/20">
+                  <Wallet className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-slate-400 uppercase">Tổng Số Dư Tất Cả Hũ</div>
+                  <div className="text-lg font-black text-emerald-400 tracking-tight">
+                    {formatVND(totalBalanceAllJars)}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-[11px] font-bold text-slate-400 uppercase">Tổng Số Dư Tất Cả Hũ</div>
-                <div className="text-lg font-black text-emerald-400 tracking-tight">
-                  {formatVND(totalBalanceAllJars)}
+
+              {/* Card 2: Remaining Unallocated Income */}
+              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#131825] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold shadow-md shadow-amber-500/20">
+                  <Coins className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-slate-400 uppercase">Thu Nhập Còn Dư Chưa Chia</div>
+                  <div className={`text-lg font-black tracking-tight ${remainingUnallocatedIncome >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {formatVND(remainingUnallocatedIncome)}
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
 
           {/* ── SECTION 1: Income Salary Banner ── */}
@@ -432,7 +453,7 @@ export default function FinancePage() {
 
                     <button
                       onClick={() => setIsEditingSalary(true)}
-                      className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold transition-all border border-slate-700"
+                      className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold transition-all border border-slate-700 cursor-pointer"
                     >
                       ✏️ Đổi mức lương
                     </button>
@@ -460,13 +481,13 @@ export default function FinancePage() {
                     <div className="flex items-center gap-2 pt-4">
                       <button
                         onClick={handleUpdateIncome}
-                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition-all"
+                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer"
                       >
                         Lưu mức lương
                       </button>
                       <button
                         onClick={() => setIsEditingSalary(false)}
-                        className="px-3 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700"
+                        className="px-3 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:bg-slate-700 cursor-pointer"
                       >
                         Hủy
                       </button>
@@ -479,7 +500,7 @@ export default function FinancePage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   onClick={openCreateJarModal}
-                  className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs md:text-sm shadow-lg shadow-emerald-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs md:text-sm shadow-lg shadow-emerald-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Thêm Hũ Mới</span>
@@ -488,7 +509,7 @@ export default function FinancePage() {
                 {jars.length > 0 && (
                   <button
                     onClick={handleAutoAllocate}
-                    className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs md:text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs md:text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>Phân Bổ Lương Vào Hũ</span>
@@ -506,7 +527,7 @@ export default function FinancePage() {
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span>Danh Sách Hũ Tài Chính ({jars.length})</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-400 font-bold border border-slate-700">
-                    Đã phân bổ: {totalPercentage}%
+                    Đã phân bổ: {totalPercentage}% ({formatVND(totalAllocatedAmount)})
                   </span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -528,7 +549,7 @@ export default function FinancePage() {
                 </div>
                 <button
                   onClick={openCreateJarModal}
-                  className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md transition-all inline-flex items-center gap-2"
+                  className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Tạo Hũ Đầu Tiên</span>
@@ -570,14 +591,14 @@ export default function FinancePage() {
                           <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => openEditJarModal(jar)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800 transition-colors cursor-pointer"
                               title="Sửa hũ"
                             >
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteJar(jar.id, jar.name)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
                               title="Xóa hũ"
                             >
                               <Trash2 className="w-4 h-4" />
