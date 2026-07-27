@@ -339,9 +339,9 @@ export default function FinancePage() {
   const totalBalanceAllJars = jars.reduce((acc, j) => acc + j.currentBalance, 0);
   const totalIncomeValue = income?.totalIncome || 7000000;
   
-  // Calculate total allocated target & remaining unallocated income
-  const totalAllocatedAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
-  const remainingUnallocatedIncome = totalIncomeValue - totalAllocatedAmount;
+  // Calculate total allocated target & actual remaining free unallocated income
+  const totalAllocatedTargetAmount = Math.round((totalIncomeValue * totalPercentage) / 100);
+  const remainingFreeIncome = totalIncomeValue - totalBalanceAllJars;
 
   const getJarIcon = (iconName: string) => {
     switch (iconName) {
@@ -397,7 +397,7 @@ export default function FinancePage() {
               </p>
             </div>
 
-            {/* Quick Summary Cards (Total Balance + Remaining Unallocated Income) */}
+            {/* Quick Summary Cards (Total Balance + Remaining Free Unallocated Income) */}
             <div className="flex flex-wrap items-center gap-3">
               {/* Card 1: Total Balance in Jars */}
               <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#131825] border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -405,22 +405,22 @@ export default function FinancePage() {
                   <Wallet className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase">Tổng Số Dư Tất Cả Hũ</div>
+                  <div className="text-[11px] font-bold text-slate-400 uppercase">Tổng Tiền Trong Các Hũ</div>
                   <div className="text-lg font-black text-emerald-400 tracking-tight">
                     {formatVND(totalBalanceAllJars)}
                   </div>
                 </div>
               </div>
 
-              {/* Card 2: Remaining Unallocated Income */}
+              {/* Card 2: Remaining Free Income */}
               <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#131825] border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold shadow-md shadow-amber-500/20">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase">Thu Nhập Còn Dư Chưa Chia</div>
-                  <div className={`text-lg font-black tracking-tight ${remainingUnallocatedIncome >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
-                    {formatVND(remainingUnallocatedIncome)}
+                  <div className="text-[11px] font-bold text-slate-400 uppercase">Thu Nhập Còn Dư Chưa Nạp</div>
+                  <div className={`text-lg font-black tracking-tight ${remainingFreeIncome >= 0 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {formatVND(remainingFreeIncome)}
                   </div>
                 </div>
               </div>
@@ -527,11 +527,11 @@ export default function FinancePage() {
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <span>Danh Sách Hũ Tài Chính ({jars.length})</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-400 font-bold border border-slate-700">
-                    Đã phân bổ: {totalPercentage}% ({formatVND(totalAllocatedAmount)})
+                    Định mức: {totalPercentage}% ({formatVND(totalAllocatedTargetAmount)})
                   </span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Bạn có thể tạo thêm hũ, ghi nhật ký/ghi chú công việc, chỉnh sửa tỷ lệ % hoặc xóa hũ
+                  Hiển thị cả Tỷ lệ % Định mức và Tỷ lệ % Thực tế dựa trên số tiền thực có trong hũ
                 </p>
               </div>
             </div>
@@ -559,6 +559,7 @@ export default function FinancePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {jars.map((jar) => {
                   const allocatedAmount = Math.round((totalIncomeValue * jar.percentage) / 100);
+                  const actualPercentage = totalIncomeValue > 0 ? ((jar.currentBalance / totalIncomeValue) * 100).toFixed(1) : '0';
 
                   return (
                     <div
@@ -579,9 +580,12 @@ export default function FinancePage() {
                               <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 leading-snug line-clamp-2 min-h-[44px] flex items-center">
                                 {jar.name}
                               </h3>
-                              <div className="flex items-center gap-2 mt-1.5">
-                                <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                                  {jar.percentage}% Thu nhập
+                              <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                                <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                                  Định mức: {jar.percentage}%
+                                </span>
+                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                  Thực tế: {actualPercentage}%
                                 </span>
                               </div>
                             </div>
