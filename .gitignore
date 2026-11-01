@@ -43,3 +43,6 @@ SKILL/
 backend/.gradle/
 backend/build/
 backend/data/
+
+# private scripts
+google_apps_script.js

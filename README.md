@@ -3,7 +3,7 @@
 
 **Better Than Yesterday** là hệ thống bảng điều khiển cá nhân hóa cao cấp giúp bạn rèn luyện kỷ luật bản thân, theo dõi thói quen kiên định, quy đổi nỗ lực thành kho quỹ tiết kiệm ảo, quản lý công việc - ghi chú thông minh và làm chủ dòng tiền với **Quy tắc 6 Hũ tài chính**.
 
-Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next.js 14 / React 18**, **Backend Java Spring Boot 3.3.4** và cơ chế đồng bộ đám mây tức thời qua **Google Sheets Apps Script API**.
+Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next.js 14 / React 18**, **Backend Java Spring Boot 3.3.4 (RESTful Web Services)** và cơ sở dữ liệu **PostgreSQL** hiệu năng cao.
 
 ---
 
@@ -64,25 +64,25 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 ┌────────────────────────────────────────────────────────┐
 │               Better Than Yesterday                    │
 ├──────────────────────────┬─────────────────────────────┤
-│  Frontend (Cổng 3000)    │   Backend Java (Cổng 8080)  │
-│  - Next.js 14 App Router │   - Spring Boot 3.3.4       │
-│  - React 18 / TypeScript │   - Java 17 LTS             │
-│  - Tailwind CSS v3       │   - Gradle Build Tool       │
-│  - Framer Motion         │   - RESTful Controllers     │
-│  - Lucide Icons          │   - In-memory & JSON Store  │
+│  Frontend (Next.js 14)   │   Backend Java (Spring Boot)│
+│  - App Router / React 18 │   - Spring Boot 3.3.4       │
+│  - TypeScript            │   - Java 17 LTS             │
+│  - Tailwind CSS          │   - RESTful API Controllers │
+│  - Framer Motion         │   - CORS Security Config    │
+│  - Lucide Icons          │   - In-Memory & Persistent  │
 └────────────┬─────────────┴──────────────┬──────────────┘
              │                            │
              ▼                            ▼
 ┌──────────────────────────┐ ┌───────────────────────────┐
-│ Google Sheets Cloud API  │ │ PostgreSQL / Supabase DB  │
-│ (Google Apps Script API) │ │ (Prisma ORM & Storage)    │
+│ Cloud Serverless Cache   │ │ PostgreSQL / Supabase DB  │
+│ (Offline-First Storage)  │ │ (Prisma ORM & Storage)    │
 └──────────────────────────┘ └───────────────────────────┘
 ```
 
 * **Frontend:** [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons, Canvas Confetti.
-* **Backend Java Core:** Java 17, [Spring Boot 3.3.4](https://spring.io/projects/spring-boot), Gradle.
-* **Cloud Database & Serverless:** Google Apps Script Web App (lưu trữ Google Sheets trực quan 24/7), Supabase Storage.
-* **Database & ORM dự phòng:** Prisma ORM 5 với PostgreSQL.
+* **Backend Java Core:** Java 17, [Spring Boot 3.3.4](https://spring.io/projects/spring-boot), Gradle, Spring Web RESTful Services.
+* **Database & ORM:** PostgreSQL với Prisma ORM, Supabase Storage.
+* **Data Resiliency:** Hỗ trợ cơ chế Offline-First Local Cache và Fallback tự động.
 
 ---
 
@@ -103,7 +103,6 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 │   ├── build.gradle                       # Cấu hình thư viện Gradle
 │   ├── run.bat                            # Script khởi chạy Java Backend nhanh
 │   └── run.ps1                            # Script PowerShell chạy Backend
-├── google_apps_script.js                  # Kịch bản triển khai Database Google Sheets
 ├── prisma/
 │   └── schema.prisma                      # Schema Prisma PostgreSQL
 ├── src/
@@ -123,7 +122,7 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 │   │   └── ...
 │   └── lib/
 │       ├── mockData.ts                    # Dữ liệu Mock toàn diện cho Guest Mode
-│       └── syncClient.ts                  # Bộ điều phối đồng bộ 3 tầng
+│       └── syncClient.ts                  # Bộ điều phối đồng bộ đa tầng
 ```
 
 ---
@@ -132,7 +131,7 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 
 ### 1. Yêu cầu môi trường
 * **Node.js** phiên bản >= 18.0.0
-* **Java SDK** phiên bản 17 trở lên (để chạy Backend Java nếu muốn)
+* **Java SDK** phiên bản 17 trở lên (để chạy Backend Java)
 
 ---
 
@@ -145,9 +144,6 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 
 2. Cấu hình biến môi trường trong file `.env` hoặc `.env.local`:
    ```env
-   # Google Sheets Cloud Database (Apps Script Web App)
-   NEXT_PUBLIC_SHEET_API_URL="your-google-apps-script-web-app-url"
-
    # Java Spring Boot Backend
    NEXT_PUBLIC_JAVA_BACKEND_URL="http://localhost:8080"
    ```
@@ -160,7 +156,7 @@ Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next
 
 ---
 
-### 3. Khởi chạy Backend Java (Tùy chọn)
+### 3. Khởi chạy Backend Java (Spring Boot 3)
 
 Di chuyển vào thư mục `backend/` và khởi chạy chỉ với 1 thao tác:
 * **Cách 1 (Windows):** Double-click vào file `backend/run.bat`
@@ -170,17 +166,6 @@ Di chuyển vào thư mục `backend/` và khởi chạy chỉ với 1 thao tác
   ./gradlew bootRun
   ```
 Backend Java sẽ hoạt động tại địa chỉ: **[http://localhost:8080](http://localhost:8080)**
-
----
-
-### 4. Triển khai Google Sheets Cloud Database (Miễn phí 24/7)
-
-1. Mở một Google Sheet mới tại: [https://sheets.new](https://sheets.new).
-2. Vào **Tiện ích mở rộng (Extensions) -> Apps Script**.
-3. Copy toàn bộ nội dung file `google_apps_script.js` dán vào.
-4. Chọn hàm `setupInitialSheets` rồi bấm **▶ Chạy (Run)** để tự động tạo 8 tab sheet và dữ liệu mẫu ban đầu.
-5. Bấm **Triển khai (Deploy) -> Tùy chọn triển khai mới -> Ứng dụng web (Web app)** (chọn quyền truy cập: *"Bất kỳ ai / Anyone"*).
-6. Copy URL Web App dán vào biến `NEXT_PUBLIC_SHEET_API_URL` trong file `.env` là xong!
 
 ---
 
