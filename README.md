@@ -1,133 +1,198 @@
-# Better Than Yesterday (BTY) 🚀
-> *"Tốt hơn 1% mỗi ngày - Kỷ luật là tự do."*
+# Better Than Yesterday (BTY PRO 3D) 🚀
+> *"Tốt hơn 1% mỗi ngày — Kỷ luật là tự do."*
 
-Better Than Yesterday là một ứng dụng dashboard cá nhân giúp bạn rèn luyện kỷ luật bản thân, theo dõi thói quen, quản lý công việc, ghi chú thông minh và áp dụng quy tắc 6 hũ tài chính để tự do tài chính. Dự án được phát triển bằng Next.js (App Router), Tailwind CSS, Prisma (PostgreSQL) và Supabase.
+**Better Than Yesterday** là hệ thống bảng điều khiển cá nhân hóa cao cấp giúp bạn rèn luyện kỷ luật bản thân, theo dõi thói quen kiên định, quy đổi nỗ lực thành kho quỹ tiết kiệm ảo, quản lý công việc - ghi chú thông minh và làm chủ dòng tiền với **Quy tắc 6 Hũ tài chính**.
+
+Dự án sở hữu kiến trúc phân tách chuẩn mực gồm **Frontend Next.js 14 / React 18**, **Backend Java Spring Boot 3.3.4** và cơ chế đồng bộ đám mây tức thời qua **Google Sheets Apps Script API**.
 
 ---
 
-## 🌟 Tính năng chính
+## 🌟 Điểm Nhấn Đột Phá & Tính Năng Nổi Bật
 
-### 1. Quản lý Thói quen (Habit Tracker) & Quỹ Tích luỹ (Savings Vault)
-* Theo dõi thói quen: Thêm, sửa, xóa thói quen với các nhóm thói quen như Vệ sinh buổi sáng, Sức khỏe, Học tập, Side Hustle...
-* Phần thưởng tích lũy (Savings Vault): Mỗi khi bạn hoàn thành một thói quen tốt, một lượng tiền ảo tương ứng (VNĐ) sẽ được tích lũy vào kho quỹ ảo để ghi nhận nỗ lực kỷ luật.
+### 1. 🌌 Trang Giới Thiệu 3D Điện Ảnh (Cinematic 3D Intro Showcase)
+* **Giao diện không gian 3D Cyber Grid:** Đèn viền phát sáng gradient Amber & Emerald, bố cục chiều sâu phối cảnh sống động.
+* **4 Thẻ 3D Nổi Bật Tương Tác (Floating Interactive Cards):**
+  * 📈 **GitHub Heatmap 365 Ngày:** Ma trận nỗ lực 52 tuần ghi nhận từng giọt mồ hôi, duy trì chuỗi streak rực lửa.
+  * 💰 **Kho Quỹ Tích Lũy Kỷ Luật (Savings Vault):** Mỗi thói quen hoàn thành tích lũy tiền thưởng ảo ghi nhận nỗ lực thực tế.
+  * 🏺 **Mô Hình 6 Hũ Tài Chính:** Phân bổ thu nhập tự động vào Quỹ Tiết Kiệm, Cổ Phiếu, Kinh Doanh, Du Lịch & Chi Tiêu.
+  * 📸 **Kho Ảnh Bằng Chứng & Sổ Ghi Chép:** Mood tracker cảm xúc và ảnh xác thực chạy bộ, học tập, nấu ăn.
+* **Phím tắt điều hướng nhanh:** Vào trải nghiệm Khách ngay, mở 6 Hũ tài chính hoặc mở Modal Đăng nhập / Đăng ký.
 
-### 2. Biểu đồ nỗ lực Heatmap (GitHub Activity Heatmap)
-* Biểu đồ nhiệt (Heatmap) thiết kế chuẩn GitHub thể hiện tần suất và điểm nỗ lực rèn luyện của bạn trong suốt 52 tuần qua (364 ngày).
-* Thống kê chuỗi ngày liên tục (streak) tốt nhất và chuỗi hiện tại để giữ lửa động lực.
+### 2. 🧭 Chế Độ Khám Phá Thử Không Rào Cản (Guest Exploration Mode)
+* **Không ép buộc đăng nhập:** Người dùng mới có thể vào thẳng Dashboard và trang Tài chính để tự do khám phá toàn bộ tính năng.
+* **Bộ Mock Data phong phú ở tất cả các tab:**
+  * Thói quen mẫu buổi sáng, buổi tối, gym, chạy bộ, nấu ăn eat-clean mang đi, uống 2L nước.
+  * Chuỗi Streak **28 ngày**, Két tiết kiệm ảo **1.450.000 VNĐ**, Heatmap 365 ngày xanh mướt.
+  * Mô hình 5-6 Hũ tài chính với tổng số dư **158.350.000 VNĐ**, lịch sử nạp/rút tiền mẫu và sổ tay ghi chép.
+* **Banner Khách thanh lịch:** Báo hiệu trạng thái tài khoản Khách kèm nút *"Đăng nhập ngay"* trên Header.
 
-### 3. Sổ Nhật ký & Ảnh minh chứng (Daily Logs & Photo Gallery)
-* Mood Tracker: Ghi nhận tâm trạng mỗi ngày (Tuyệt vời, Tốt, Bình thường, Mệt mỏi) kèm ghi chú ngắn.
-* Proof Image: Tải ảnh minh chứng thói quen mỗi ngày (như ảnh chạy bộ, ảnh đọc sách, ảnh học code) trực tiếp lên Supabase Storage.
+### 3. 🛡️ Cơ Chế Yêu Cầu Đăng Nhập Thông Minh (Smart Auth Trigger)
+* Khách thoải mái xem và tương tác giao diện.
+* Khi người dùng thực hiện các hành động cần lưu trữ thực tế (Thêm thói quen mới, Nạp/rút tiền 6 hũ, Sửa bảng lương, Upload ảnh...):
+  * **AuthModal** sẽ hiển thị nhẹ nhàng: *"Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để lưu trữ dữ liệu cá nhân của riêng bạn nhé!"*.
+  * Thao tác hiện tại không bị gián đoạn hay mất dữ liệu.
 
-### 4. Quản lý Tài chính cá nhân (Quy tắc 6 Hũ tài chính)
-* Quản lý Thu nhập: Nhập lương và các nguồn thu nhập phụ hàng tháng để phân bổ tự động.
-* Mô hình 6 Hũ tài chính: Tự động chia tiền theo tỷ lệ phần trăm được cấu hình sẵn cho các quỹ:
+### 4. 🔑 Hệ Thống Đăng Ký & Đăng Nhập Toàn Diện
+* **2 Tab chuyển đổi linh hoạt:**
+  * **Tab Đăng Nhập:** Dành cho tài khoản cá nhân hoặc admin.
+  * **Tab Đăng Ký:** Nhập Họ tên, Tên đăng nhập, Mật khẩu -> Đăng ký và tự động đăng nhập tức thì.
+* **1-Click Quick Demo Accounts:**
+  * 👑 Quản trị viên: `xu4ns0n` / `Sondeptrai123@k`
+  * 👤 Thành viên mẫu: `guest_demo` / `123456`
+  * 🧭 Nút *"Tiếp tục với tư cách Khách"*.
+
+### 5. 🏺 Quản Trị Dòng Tiền & Quy Tắc 6 Hũ Tài Chính (`/tai-chinh`)
+* **Quản lý Thu nhập:** Nhập lương cứng và các nguồn thưởng biến động theo tháng `YYYY-MM`.
+* **Cơ chế Phân bổ Tự động:** Chia tiền theo tỷ lệ phần trăm tùy biến cho các quỹ:
   * Tiết kiệm & Dự phòng (`SAVINGS`)
   * Đầu tư Cổ phiếu / Chứng khoán (`STOCKS`)
   * Đầu tư Kinh doanh / Side Hustle (`BUSINESS`)
   * Quỹ Du lịch & Trải nghiệm (`TRAVEL`)
   * Chi tiêu Tự do & Thiết yếu (`FREE_SPEND`)
-* Giao dịch: Ghi nhận nạp tiền vào quỹ (`IN`) hoặc rút chi tiêu (`OUT`).
-* Sổ ghi chép phụ: Mỗi hũ tài chính đi kèm một Notebook riêng để lưu trữ ghi chép, kế hoạch chi tiêu cụ thể.
+* **Nhật ký Giao dịch:** Ghi nhận nạp tiền (`IN`) hoặc rút chi tiêu (`OUT`).
+* **Sổ tay riêng biệt (Notebook):** Mỗi hũ có một tab sổ tay ghi chép kế hoạch và ghi chú chi tiêu chi tiết.
 
-### 5. Quản lý Task việc cần làm (Todo List)
-* Thêm, xóa và đánh dấu hoàn thành công việc nhanh trong ngày.
-* Phân cấp độ ưu tiên nhiệm vụ (Cao, Trung bình, Thấp) để tập trung xử lý.
-
-### 6. Trình ghi chú Rich Notes
-* Soạn thảo ghi chú phong phú với tiêu đề (H1, H2, H3), danh sách gạch đầu dòng, bảng biểu.
-* Tính năng ghim (`pin`) các ghi chú quan trọng lên đầu danh sách.
+### 6. 📝 Nhiệm Vụ & Ghi Chú Phân Cấp (Todo List & Rich Notes)
+* Quản lý to-do phân cấp độ ưu tiên (Cao, Trung bình, Thấp) với hạn hoàn thành.
+* Trình soạn thảo ghi chú Markdown hỗ trợ tiêu đề, bảng biểu, ghim (`Pin`) lên đầu danh sách.
 
 ---
 
-## 🛠️ Công nghệ sử dụng
-
-* Core: [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript.
-* Database & ORM: [Prisma ORM](https://www.prisma.io/) với cơ sở dữ liệu PostgreSQL (chạy trên Supabase / Local).
-* Storage: [Supabase Storage SDK](https://supabase.com/) dùng để tải lên hình ảnh minh chứng hàng ngày.
-* Styling & UI: [Tailwind CSS](https://tailwindcss.com/), [Lucide React](https://lucide.dev/) (Icons), [Framer Motion](https://www.framer.com/motion/) (Animation), [Canvas Confetti](https://github.com/catdad/canvas-confetti).
-* Date processing: [date-fns](https://date-fns.org/).
-
----
-
-## 🔑 Tài khoản Đăng nhập mặc định
-
-Hệ thống sử dụng cơ chế kiểm tra quyền truy cập thông qua LocalStorage và Cookie bảo mật:
-
-* Tài khoản (Username): `xu4ns0n`
-* Mật khẩu (Password): `Sondeptrai123@k`
-
----
-
-## 🚀 Hướng dẫn Cài đặt & Khởi chạy
-
-### 1. Yêu cầu hệ thống
-* Node.js phiên bản >= 18.0.0
-* Một cơ sở dữ liệu PostgreSQL hoạt động (ví dụ: Supabase PostgreSQL)
-
-### 2. Cài đặt các thư viện phụ thuộc
-Di chuyển vào thư mục dự án và chạy lệnh sau để cài đặt các package cần thiết:
-```bash
-npm install
-```
-
-### 3. Cấu hình Biến môi trường
-Tạo file `.env` hoặc `.env.local` ở thư mục gốc của dự án với nội dung cấu hình sau:
-```env
-# URL kết nối cơ sở dữ liệu PostgreSQL (Transaction)
-DATABASE_URL="your-postgresql-database-url"
-
-# URL kết nối trực tiếp đến PostgreSQL (Session)
-DIRECT_URL="your-postgresql-direct-url"
-
-# API kết nối dịch vụ Supabase để lưu trữ ảnh
-NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
-```
-
-### 4. Tạo cấu trúc bảng cơ sở dữ liệu (Database Setup)
-Chạy lệnh Prisma để đẩy cấu trúc schema vào cơ sở dữ liệu của bạn:
-```bash
-# Đồng bộ schema lên database
-npx prisma db push
-
-# Tạo Prisma Client
-npx prisma generate
-```
-
-### 5. Seeding dữ liệu mẫu (Khuyến nghị)
-Chạy các script mẫu để tạo trước 5 Hũ tài chính mặc định và cấu hình thu nhập ban đầu:
-```bash
-# Seed dữ liệu tài chính mặc định
-npx ts-node scripts/seed-finance.ts
-```
-
-### 6. Khởi chạy Server Phát triển
-Bắt đầu dự án tại local:
-```bash
-npm run dev
-```
-Mở trình duyệt và truy cập địa chỉ http://localhost:3000 để bắt đầu hành trình cải thiện bản thân tốt hơn mỗi ngày!
-
----
-
-## 📁 Cấu trúc thư mục dự án
+## 🛠️ Kiến Trúc Công Nghệ Chuẩn Mực
 
 ```text
+┌────────────────────────────────────────────────────────┐
+│               Better Than Yesterday                    │
+├──────────────────────────┬─────────────────────────────┤
+│  Frontend (Cổng 3000)    │   Backend Java (Cổng 8080)  │
+│  - Next.js 14 App Router │   - Spring Boot 3.3.4       │
+│  - React 18 / TypeScript │   - Java 17 LTS             │
+│  - Tailwind CSS v3       │   - Gradle Build Tool       │
+│  - Framer Motion         │   - RESTful Controllers     │
+│  - Lucide Icons          │   - In-memory & JSON Store  │
+└────────────┬─────────────┴──────────────┬──────────────┘
+             │                            │
+             ▼                            ▼
+┌──────────────────────────┐ ┌───────────────────────────┐
+│ Google Sheets Cloud API  │ │ PostgreSQL / Supabase DB  │
+│ (Google Apps Script API) │ │ (Prisma ORM & Storage)    │
+└──────────────────────────┘ └───────────────────────────┘
+```
+
+* **Frontend:** [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons, Canvas Confetti.
+* **Backend Java Core:** Java 17, [Spring Boot 3.3.4](https://spring.io/projects/spring-boot), Gradle.
+* **Cloud Database & Serverless:** Google Apps Script Web App (lưu trữ Google Sheets trực quan 24/7), Supabase Storage.
+* **Database & ORM dự phòng:** Prisma ORM 5 với PostgreSQL.
+
+---
+
+## 📁 Cấu Trúc Thư Mục Dự Án
+
+```text
+├── backend/                               # Lõi Backend Java Spring Boot 3
+│   ├── src/main/java/com/betterthanyesterday/
+│   │   ├── config/CorsConfig.java        # Cấu hình CORS cho Frontend kết nối
+│   │   ├── controller/
+│   │   │   ├── AuthController.java       # API Đăng nhập, Đăng ký, Healthcheck
+│   │   │   ├── HabitController.java      # API Thói quen & Check-in chuỗi Streak
+│   │   │   ├── FinanceController.java    # API Thu nhập, 6 Hũ, Giao dịch
+│   │   │   ├── TodoController.java       # API Quản lý danh sách việc cần làm
+│   │   │   └── NoteController.java       # API Ghi chú Markdown
+│   │   ├── service/DataStorageService.java # Dịch vụ lưu trữ dữ liệu bền vững
+│   │   └── BetterThanYesterdayApplication.java # Hàm Main Spring Boot
+│   ├── build.gradle                       # Cấu hình thư viện Gradle
+│   ├── run.bat                            # Script khởi chạy Java Backend nhanh
+│   └── run.ps1                            # Script PowerShell chạy Backend
+├── google_apps_script.js                  # Kịch bản triển khai Database Google Sheets
 ├── prisma/
-│   └── schema.prisma        # Định nghĩa các model cơ sở dữ liệu (Habit, Finance, Note, Todo...)
-├── scripts/
-│   ├── seed-finance.ts      # Script seed dữ liệu hũ tài chính mặc định
-│   └── clear-db.ts          # Script dọn dẹp cơ sở dữ liệu
+│   └── schema.prisma                      # Schema Prisma PostgreSQL
 ├── src/
-│   ├── app/                 # Next.js App Router (Các trang & REST API Route handler)
-│   │   ├── api/             # API Endpoints (/api/habits, /api/finance, /api/logs...)
-│   │   ├── login/           # Trang Đăng nhập
-│   │   ├── tai-chinh/       # Module Quản lý 6 Hũ tài chính
-│   │   └── page.tsx         # Trang chủ Dashboard quản lý kỷ luật
-│   ├── components/          # Các Component UI React (Heatmap, Todo, HabitCard, Savings...)
-│   └── lib/                 # Khởi tạo DB client và Supabase Storage Client
+│   ├── app/
+│   │   ├── intro/page.tsx                 # Trang Giới thiệu 3D Showcase
+│   │   ├── login/page.tsx                 # Trang Đăng nhập & Đăng ký
+│   │   ├── tai-chinh/page.tsx             # Module Quản lý 6 Hũ tài chính
+│   │   ├── page.tsx                       # Dashboard Quản trị Kỷ luật
+│   │   └── api/                           # Next.js API Route Handlers
+│   ├── components/
+│   │   ├── IntroShowcase.tsx              # Component Intro 3D điện ảnh
+│   │   ├── AuthModal.tsx                  # Modal Đăng nhập / Đăng ký thông minh
+│   │   ├── HabitCard.tsx                  # Thẻ thói quen tương tác
+│   │   ├── SavingsVault.tsx               # Két tích lũy nỗ lực ảo
+│   │   ├── GitHubHeatmap.tsx              # Biểu đồ nhiệt nỗ lực 365 ngày
+│   │   ├── Sidebar.tsx & Header.tsx       # Điều hướng & Trạng thái Guest/User
+│   │   └── ...
+│   └── lib/
+│       ├── mockData.ts                    # Dữ liệu Mock toàn diện cho Guest Mode
+│       └── syncClient.ts                  # Bộ điều phối đồng bộ 3 tầng
 ```
 
 ---
-Chúc bạn rèn luyện kỷ luật thành công và đạt được mục tiêu tốt hơn ngày hôm qua! 🌟
+
+## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
+
+### 1. Yêu cầu môi trường
+* **Node.js** phiên bản >= 18.0.0
+* **Java SDK** phiên bản 17 trở lên (để chạy Backend Java nếu muốn)
+
+---
+
+### 2. Khởi chạy Frontend (Next.js)
+
+1. Cài đặt các thư viện:
+   ```bash
+   npm install
+   ```
+
+2. Cấu hình biến môi trường trong file `.env` hoặc `.env.local`:
+   ```env
+   # Google Sheets Cloud Database (Apps Script Web App)
+   NEXT_PUBLIC_SHEET_API_URL="your-google-apps-script-web-app-url"
+
+   # Java Spring Boot Backend
+   NEXT_PUBLIC_JAVA_BACKEND_URL="http://localhost:8080"
+   ```
+
+3. Khởi chạy Server Frontend:
+   ```bash
+   npm run dev
+   ```
+   * Mở trình duyệt và truy cập: **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+### 3. Khởi chạy Backend Java (Tùy chọn)
+
+Di chuyển vào thư mục `backend/` và khởi chạy chỉ với 1 thao tác:
+* **Cách 1 (Windows):** Double-click vào file `backend/run.bat`
+* **Cách 2 (Terminal):**
+  ```bash
+  cd backend
+  ./gradlew bootRun
+  ```
+Backend Java sẽ hoạt động tại địa chỉ: **[http://localhost:8080](http://localhost:8080)**
+
+---
+
+### 4. Triển khai Google Sheets Cloud Database (Miễn phí 24/7)
+
+1. Mở một Google Sheet mới tại: [https://sheets.new](https://sheets.new).
+2. Vào **Tiện ích mở rộng (Extensions) -> Apps Script**.
+3. Copy toàn bộ nội dung file `google_apps_script.js` dán vào.
+4. Chọn hàm `setupInitialSheets` rồi bấm **▶ Chạy (Run)** để tự động tạo 8 tab sheet và dữ liệu mẫu ban đầu.
+5. Bấm **Triển khai (Deploy) -> Tùy chọn triển khai mới -> Ứng dụng web (Web app)** (chọn quyền truy cập: *"Bất kỳ ai / Anyone"*).
+6. Copy URL Web App dán vào biến `NEXT_PUBLIC_SHEET_API_URL` trong file `.env` là xong!
+
+---
+
+## 🔑 Tài Khoản Trải Nghiệm Mặc Định
+
+* 👑 **Tài khoản Quản trị:**
+  * **Tên đăng nhập:** `xu4ns0n`
+  * **Mật khẩu:** `Sondeptrai123@k`
+* 👤 **Tài khoản Thành viên:**
+  * **Tên đăng nhập:** `guest_demo`
+  * **Mật khẩu:** `123456`
+* 🧭 **Chế độ Khách:** Bấm nút *"Khám Phá Thử Ngay"* trên giao diện để trải nghiệm không cần mật khẩu.
+
+---
+*Chúc bạn rèn luyện kỷ luật thành công và tốt hơn 1% mỗi ngày cùng Better Than Yesterday!* 🌟
