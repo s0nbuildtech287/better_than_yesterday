@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Calendar, PlusCircle, Sparkles, Zap, Sun, Moon, Menu, Flame } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Calendar, PlusCircle, Sparkles, Zap, Sun, Moon, Menu, Flame, Compass, LogIn, User } from 'lucide-react';
 import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 
 interface HeaderProps {
   streakCount: number;
@@ -12,6 +12,9 @@ interface HeaderProps {
   onOpenAddModal: () => void;
   onOpenMotivationModal: () => void;
   onToggleMobileMenu?: () => void;
+  isGuest?: boolean;
+  onOpenAuth?: () => void;
+  currentUser?: { username: string; fullName: string } | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,11 +24,15 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAddModal,
   onOpenMotivationModal,
   onToggleMobileMenu,
+  isGuest = false,
+  onOpenAuth,
+  currentUser,
 }) => {
+  const router = useRouter();
   const todayFormatted = format(new Date(), 'dd/MM/yyyy');
 
   return (
-    <header className="w-full bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-20 transition-colors">
+    <header className="w-full bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-20 transition-colors">
       
       {/* Mobile Menu Trigger & Header Title */}
       <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
@@ -41,16 +48,33 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">
             <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
             <span>Ngày {todayFormatted}</span>
+            {isGuest && (
+              <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/15 text-amber-500 border border-amber-500/30 ml-1.5">
+                Chế độ Khách (Guest)
+              </span>
+            )}
           </div>
-          <h2 className="text-sm sm:text-lg font-extrabold text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap truncate">
+          <h2 
+            onClick={() => router.push('/intro')}
+            className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap truncate cursor-pointer hover:text-amber-500 transition-colors"
+          >
             Better Than Yesterday
           </h2>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
         
+        {/* Intro 3D Shortcut */}
+        <button
+          onClick={() => router.push('/intro')}
+          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20 transition-all whitespace-nowrap"
+        >
+          <Compass className="w-3.5 h-3.5" />
+          <span>Giới Thiệu 3D</span>
+        </button>
+
         {/* Streak Flame Pill */}
         <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-extrabold whitespace-nowrap">
           <Flame className="w-4 h-4 fill-amber-500 flex-shrink-0" />
@@ -75,16 +99,27 @@ export const Header: React.FC<HeaderProps> = ({
           {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
         </button>
 
-        {/* Add Habit button for mobile header */}
-        <button
-          onClick={onOpenAddModal}
-          className="md:hidden p-2 rounded-xl bg-amber-500 text-white shadow-md active:scale-95 transition-all flex items-center justify-center"
-          title="Thêm thói quen"
-        >
-          <PlusCircle className="w-5 h-5" />
-        </button>
-      </div>
+        {/* Guest: Sign in button */}
+        {isGuest ? (
+          <button
+            onClick={onOpenAuth}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs shadow hover:from-amber-600 transition-all whitespace-nowrap"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>Đăng Nhập</span>
+          </button>
+        ) : (
+          /* Add Habit button for authenticated user */
+          <button
+            onClick={onOpenAddModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Thêm thói quen</span>
+          </button>
+        )}
 
+      </div>
     </header>
   );
 };

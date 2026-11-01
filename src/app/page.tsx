@@ -18,12 +18,24 @@ import { EditHabitModal } from '@/components/EditHabitModal';
 import { HabitDetailModal } from '@/components/HabitDetailModal';
 import { EmergencyMotivationModal } from '@/components/EmergencyMotivationModal';
 import { PhotoGallery } from '@/components/PhotoGallery';
-import { Sparkles, CheckCircle2, PlusCircle, X, ArrowRight } from 'lucide-react';
+import { AuthModal } from '@/components/AuthModal';
+import { 
+  Sparkles, CheckCircle2, PlusCircle, X, ArrowRight, 
+  Compass, LogIn, AlertCircle, ShieldAlert 
+} from 'lucide-react';
 import { format } from 'date-fns';
+import { SyncClient } from '@/lib/syncClient';
+import { 
+  MOCK_HABITS, MOCK_COMPLETED_IDS, generateMockCompletedDatesMap, 
+  MOCK_WEEKLY_SCORES 
+} from '@/lib/mockData';
 
 export default function HomePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<{ username: string; fullName: string } | null>(null);
+
   const [habits, setHabits] = useState<HabitItem[]>([]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [streakCount, setStreakCount] = useState<number>(0);
@@ -49,22 +61,76 @@ export default function HomePage() {
   const [selectedHabitForDetail, setSelectedHabitForDetail] = useState<HabitItem | null>(null);
   const [selectedHabitForEdit, setSelectedHabitForEdit] = useState<HabitItem | null>(null);
 
+  // Auth Modal state
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authReason, setAuthReason] = useState<string>('');
+
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
-  // Login Check
+  // Check Auth & Guest Mode
   useEffect(() => {
     const isAuth = localStorage.getItem('bty_auth');
-    if (isAuth !== 'true') {
-      router.push('/login');
-    } else {
+    const guestFlag = localStorage.getItem('bty_guest');
+    const userRaw = localStorage.getItem('bty_current_user');
+
+    if (isAuth === 'true') {
       setIsAuthenticated(true);
+      setIsGuest(false);
+      if (userRaw) {
+        try {
+          setCurrentUser(JSON.parse(userRaw));
+        } catch {
+          setCurrentUser({ username: 'xu4ns0n', fullName: 'Nguyễn Xuân Sơn' });
+        }
+      } else {
+        setCurrentUser({ username: 'xu4ns0n', fullName: 'Nguyễn Xuân Sơn' });
+      }
+    } else {
+      // Allow guest exploration seamlessly
+      setIsAuthenticated(false);
+      setIsGuest(true);
+      loadMockGuestData();
     }
-  }, [router]);
+  }, []);
+
+  const loadMockGuestData = () => {
+    setIsLoading(true);
+    setHabits(MOCK_HABITS as unknown as HabitItem[]);
+    setCompletedIds(MOCK_COMPLETED_IDS);
+    setStreakCount(28);
+    setSavedToday(45000);
+    setSavedTotal(1450000);
+    setCompletedDatesMap(generateMockCompletedDatesMap());
+    setWeeklyScores(MOCK_WEEKLY_SCORES);
+    setDailyLog({
+      proofImageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop',
+      notes: 'Chạy bộ 5km công viên sáng sớm và hoàn thành mục tiêu tập luyện!',
+    });
+    setIsLoading(false);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('bty_auth');
+    localStorage.removeItem('bty_current_user');
+    localStorage.setItem('bty_guest', 'true');
     document.cookie = 'bty_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-    router.push('/login');
+    setIsAuthenticated(false);
+    setIsGuest(true);
+    loadMockGuestData();
+  };
+
+  const handleAuthSuccess = (username: string) => {
+    setIsAuthenticated(true);
+    setIsGuest(false);
+    const userRaw = localStorage.getItem('bty_current_user');
+    if (userRaw) {
+      try {
+        setCurrentUser(JSON.parse(userRaw));
+      } catch {
+        setCurrentUser({ username, fullName: username });
+      }
+    }
+    fetchData();
   };
 
   useEffect(() => {
@@ -82,6 +148,21 @@ export default function HomePage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
+
+      // 1. Try SyncClient (Google Sheets / Java Backend)
+      const syncData = await SyncClient.fetchAllData(currentUser?.username);
+      if (syncData && syncData.habits && syncData.habits.length > 0) {
+        setHabits(syncData.habits);
+        if (syncData.completedHabitIds) setCompletedIds(syncData.completedHabitIds);
+        if (syncData.streakCount !== undefined) setStreakCount(syncData.streakCount);
+        if (syncData.savedToday !== undefined) setSavedToday(syncData.savedToday);
+        if (syncData.savedTotal !== undefined) setSavedTotal(syncData.savedTotal);
+        if (syncData.completedDatesMap) setCompletedDatesMap(syncData.completedDatesMap);
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Fallback to local Next.js API
       const [habitsRes, logsRes] = await Promise.all([
         fetch('/api/habits', { cache: 'no-store' }),
         fetch(`/api/logs?date=${todayStr}`, { cache: 'no-store' }),
@@ -90,9 +171,12 @@ export default function HomePage() {
       const habitsData = await habitsRes.json();
       const logsData = await logsRes.json();
 
-      if (habitsData.habits) {
+      if (habitsData.habits && habitsData.habits.length > 0) {
         setHabits(habitsData.habits);
+      } else {
+        setHabits(MOCK_HABITS as unknown as HabitItem[]);
       }
+
       if (logsData.completedHabitIds) {
         setCompletedIds(logsData.completedHabitIds);
       }
@@ -116,6 +200,7 @@ export default function HomePage() {
       }
     } catch (err) {
       console.error('Error loading data:', err);
+      loadMockGuestData();
     } finally {
       setIsLoading(false);
     }
@@ -128,9 +213,27 @@ export default function HomePage() {
   }, [isAuthenticated]);
 
   const handleToggleHabit = async (habitId: string, nextState: boolean) => {
+    if (isGuest) {
+      // Toggle locally for demo feedback
+      setCompletedIds((prev) =>
+        nextState ? [...prev, habitId] : prev.filter((id) => id !== habitId)
+      );
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Hãy Đăng nhập hoặc Đăng ký để lưu chuỗi thói quen thực tế nhé!');
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     setCompletedIds((prev) =>
       nextState ? [...prev, habitId] : prev.filter((id) => id !== habitId)
     );
+
+    // Sync to Google Sheets & Java Backend
+    SyncClient.postAction({
+      action: 'toggleLog',
+      habitId,
+      completed: nextState,
+      date: todayStr,
+    });
 
     try {
       await fetch('/api/logs', {
@@ -145,11 +248,32 @@ export default function HomePage() {
       fetchData();
     } catch (err) {
       console.error('Error toggling habit:', err);
-      fetchData();
     }
   };
 
+  const handleOpenAddHabit = () => {
+    if (isGuest) {
+      setAuthReason('Vui lòng Đăng nhập hoặc Tạo tài khoản để bắt đầu thêm các thói quen cá nhân!');
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setIsAddModalOpen(true);
+  };
+
+  const handleOpenUploadProof = () => {
+    if (isGuest) {
+      setAuthReason('Vui lòng Đăng nhập hoặc Tạo tài khoản để tải ảnh minh chứng lên kho lưu trữ cá nhân!');
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setIsUploadModalOpen(true);
+  };
+
   const handleDeleteHabit = async (habitId: string) => {
+    if (isGuest) {
+      setHabits((prev) => prev.filter((h) => h.id !== habitId));
+      return;
+    }
     try {
       await fetch(`/api/habits?id=${habitId}`, { method: 'DELETE' });
       fetchData();
@@ -173,17 +297,6 @@ export default function HomePage() {
 
   const completedCount = habits.filter((h) => completedIds.includes(h.id)).length;
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-white">
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-6 h-6 text-amber-500 animate-spin" />
-          <span className="text-sm font-bold">Đang kiểm tra quyền truy cập...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
@@ -202,9 +315,15 @@ export default function HomePage() {
         streakCount={streakCount}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
+        onOpenAddModal={handleOpenAddHabit}
         onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
         onLogout={handleLogout}
+        isGuest={isGuest}
+        onOpenAuth={() => {
+          setAuthReason('Đăng nhập hoặc Đăng ký tài khoản để quản lý thói quen cá nhân của riêng bạn');
+          setIsAuthModalOpen(true);
+        }}
+        currentUser={currentUser}
       />
 
       {/* Mobile Drawer Menu Overlay */}
@@ -234,7 +353,7 @@ export default function HomePage() {
                 isDarkMode={isDarkMode}
                 onToggleDarkMode={toggleDarkMode}
                 onOpenAddModal={() => {
-                  setIsAddModalOpen(true);
+                  handleOpenAddHabit();
                   setIsMobileMenuOpen(false);
                 }}
                 onOpenMotivationModal={() => {
@@ -242,6 +361,13 @@ export default function HomePage() {
                   setIsMobileMenuOpen(false);
                 }}
                 onLogout={handleLogout}
+                isGuest={isGuest}
+                onOpenAuth={() => {
+                  setAuthReason('Đăng nhập hoặc Đăng ký để lưu thói quen thực tế');
+                  setIsAuthModalOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                currentUser={currentUser}
               />
             </div>
           </div>
@@ -255,10 +381,38 @@ export default function HomePage() {
           streakCount={streakCount}
           isDarkMode={isDarkMode}
           onToggleDarkMode={toggleDarkMode}
-          onOpenAddModal={() => setIsAddModalOpen(true)}
+          onOpenAddModal={handleOpenAddHabit}
           onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
           onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
+          isGuest={isGuest}
+          onOpenAuth={() => {
+            setAuthReason('Đăng nhập hoặc Đăng ký để lưu trữ thói quen cá nhân');
+            setIsAuthModalOpen(true);
+          }}
+          currentUser={currentUser}
         />
+
+        {/* Guest Mode Notice Strip */}
+        {isGuest && (
+          <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-b border-amber-500/20 px-4 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Compass className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+              <span className="truncate">
+                Bạn đang ở <strong>Chế độ Khách (Guest Mode)</strong> — Dữ liệu hiển thị là mẫu thử nghiệm.
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setAuthReason('Tạo tài khoản hoặc đăng nhập để bắt đầu lưu chuỗi thói quen thực tế của bạn');
+                setIsAuthModalOpen(true);
+              }}
+              className="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs shadow hover:bg-amber-400 transition-all flex items-center gap-1 flex-shrink-0"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Đăng nhập ngay</span>
+            </button>
+          </div>
+        )}
 
         <main className="p-3.5 sm:p-8 max-w-[1600px] w-full mx-auto flex-1">
           
@@ -266,7 +420,7 @@ export default function HomePage() {
           {activeTab === 'ALL' && (
             <div className="space-y-6 sm:space-y-8 animate-fadeIn">
               <WelcomeWidget
-                userName="Sơn"
+                userName={currentUser?.fullName || currentUser?.username || (isGuest ? 'Khách Trải Nghiệm' : 'Sơn')}
                 streakCount={streakCount}
                 onOpenMotivationModal={() => setIsMotivationModalOpen(true)}
               />
@@ -316,7 +470,7 @@ export default function HomePage() {
                         habit={habit}
                         isCompleted={completedIds.includes(habit.id)}
                         onToggle={handleToggleHabit}
-                        onUploadProof={() => setIsUploadModalOpen(true)}
+                        onUploadProof={handleOpenUploadProof}
                         onClickDetail={(h) => setSelectedHabitForDetail(h)}
                       />
                     ))}
@@ -331,7 +485,7 @@ export default function HomePage() {
                       Bấm nút bên dưới để tạo danh sách thói quen riêng của bạn!
                     </p>
                     <button
-                      onClick={() => setIsAddModalOpen(true)}
+                      onClick={handleOpenAddHabit}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md whitespace-nowrap"
                     >
                       <PlusCircle className="w-4 h-4" />
@@ -357,7 +511,7 @@ export default function HomePage() {
                 </div>
 
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={handleOpenAddHabit}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-md transition-all self-start sm:self-auto whitespace-nowrap"
                 >
                   <PlusCircle className="w-4 h-4" />
@@ -400,7 +554,7 @@ export default function HomePage() {
                       habit={habit}
                       isCompleted={completedIds.includes(habit.id)}
                       onToggle={handleToggleHabit}
-                      onUploadProof={() => setIsUploadModalOpen(true)}
+                      onUploadProof={handleOpenUploadProof}
                       onClickDetail={(h) => setSelectedHabitForDetail(h)}
                     />
                   ))}
@@ -412,7 +566,7 @@ export default function HomePage() {
                     Chưa có thói quen nào ở danh mục này
                   </h4>
                   <button
-                    onClick={() => setIsAddModalOpen(true)}
+                    onClick={handleOpenAddHabit}
                     className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs whitespace-nowrap"
                   >
                     <PlusCircle className="w-4 h-4" />
@@ -438,7 +592,7 @@ export default function HomePage() {
                 proofImageUrl={dailyLog?.proofImageUrl}
                 notes={dailyLog?.notes}
                 logDate={todayStr}
-                onOpenUpload={() => setIsUploadModalOpen(true)}
+                onOpenUpload={handleOpenUploadProof}
               />
             </div>
           )}
@@ -503,6 +657,14 @@ export default function HomePage() {
       <EmergencyMotivationModal
         isOpen={isMotivationModalOpen}
         onClose={() => setIsMotivationModalOpen(false)}
+      />
+
+      {/* Global Auth Modal for Guest Upgrading */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+        reasonMessage={authReason}
       />
 
     </div>

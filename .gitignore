@@ -38,3 +38,8 @@ next-env.d.ts
 
 # skill subfolder
 SKILL/
+
+# java backend
+backend/.gradle/
+backend/build/
+backend/data/

@@ -6,9 +6,13 @@ import {
   Wallet, PiggyBank, TrendingUp, Briefcase, Plane, ShoppingBag, 
   PlusCircle, MinusCircle, ArrowRightLeft, DollarSign, PieChart, 
   Sparkles, RefreshCw, CheckCircle2, ChevronLeft, Calendar, Info, Layers,
-  Plus, Trash2, Edit3, X, FileText, Clock, Send, Coins, AlertTriangle
+  Plus, Trash2, Edit3, X, FileText, Clock, Send, Coins, AlertTriangle,
+  Compass, LogIn
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { AuthModal } from '@/components/AuthModal';
+import { SyncClient } from '@/lib/syncClient';
+import { MOCK_FINANCE_INCOME, MOCK_FINANCE_JARS, MOCK_FINANCE_TRANSACTIONS } from '@/lib/mockData';
 
 interface FinanceIncome {
   id: string;
@@ -62,9 +66,14 @@ export default function FinancePage() {
   const [transactions, setTransactions] = useState<FinanceTransaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authReason, setAuthReason] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<{ username: string; fullName: string } | null>(null);
+
   // Editable Income States
-  const [salaryInput, setSalaryInput] = useState<string>('7000000');
-  const [bonusInput, setBonusInput] = useState<string>('0');
+  const [salaryInput, setSalaryInput] = useState<string>('18000000');
+  const [bonusInput, setBonusInput] = useState<string>('4500000');
   const [isEditingSalary, setIsEditingSalary] = useState<boolean>(false);
 
   // Transaction Modal State
@@ -93,9 +102,35 @@ export default function FinancePage() {
     return new Intl.NumberFormat('vi-VN').format(num) + ' đ';
   };
 
+  const loadMockFinance = () => {
+    setIncome(MOCK_FINANCE_INCOME);
+    setSalaryInput(MOCK_FINANCE_INCOME.monthlySalary.toString());
+    setBonusInput(MOCK_FINANCE_INCOME.bonusIncome.toString());
+    setJars(MOCK_FINANCE_JARS as unknown as FinanceJar[]);
+    setTransactions(MOCK_FINANCE_TRANSACTIONS as unknown as FinanceTransaction[]);
+    setLoading(false);
+  };
+
   const fetchFinanceData = async () => {
     setLoading(true);
     try {
+      // 1. Try SyncClient (Google Sheets / Java Backend)
+      const syncData = await SyncClient.fetchAllData(currentUser?.username);
+      if (syncData && syncData.jars && syncData.jars.length > 0) {
+        setJars(syncData.jars);
+        if (syncData.income) {
+          setIncome(syncData.income);
+          setSalaryInput(syncData.income.monthlySalary?.toString() || '18000000');
+          setBonusInput(syncData.income.bonusIncome?.toString() || '4500000');
+        }
+        if (syncData.transactions) {
+          setTransactions(syncData.transactions);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to Next.js API
       const [incomeRes, jarsRes, txRes] = await Promise.all([
         fetch('/api/finance/income'),
         fetch('/api/finance/jars'),
@@ -106,27 +141,64 @@ export default function FinancePage() {
       const jarsData = await jarsRes.json();
       const txData = await txRes.json();
 
+      let hasValidData = false;
       if (incomeData.success && incomeData.data) {
         setIncome(incomeData.data);
         setSalaryInput(incomeData.data.monthlySalary.toString());
         setBonusInput(incomeData.data.bonusIncome.toString());
+        hasValidData = true;
       }
-      if (jarsData.success && jarsData.data) {
+      if (jarsData.success && jarsData.data && jarsData.data.length > 0) {
         setJars(jarsData.data);
+        hasValidData = true;
       }
       if (txData.success && txData.data) {
         setTransactions(txData.data);
       }
+
+      if (!hasValidData) {
+        loadMockFinance();
+      }
     } catch (error) {
       console.error('Error loading finance data:', error);
+      loadMockFinance();
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchFinanceData();
+    const isAuth = localStorage.getItem('bty_auth');
+    const userRaw = localStorage.getItem('bty_current_user');
+
+    if (isAuth === 'true') {
+      setIsGuest(false);
+      if (userRaw) {
+        try {
+          setCurrentUser(JSON.parse(userRaw));
+        } catch {
+          setCurrentUser({ username: 'xu4ns0n', fullName: 'Nguyễn Xuân Sơn' });
+        }
+      }
+      fetchFinanceData();
+    } else {
+      setIsGuest(true);
+      loadMockFinance();
+    }
   }, []);
+
+  const handleAuthSuccess = (u: string) => {
+    setIsGuest(false);
+    const userRaw = localStorage.getItem('bty_current_user');
+    if (userRaw) {
+      try {
+        setCurrentUser(JSON.parse(userRaw));
+      } catch {
+        setCurrentUser({ username: u, fullName: u });
+      }
+    }
+    fetchFinanceData();
+  };
 
   const totalPercentage = jars.reduce((acc, j) => acc + j.percentage, 0);
   const totalBalanceAllJars = jars.reduce((acc, j) => acc + j.currentBalance, 0);
@@ -161,6 +233,11 @@ export default function FinancePage() {
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để lưu ghi chú sổ tay tài chính!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!selectedJarForNotes || !newNoteContent.trim()) return;
 
     try {
@@ -184,6 +261,10 @@ export default function FinancePage() {
   };
 
   const handleDeleteNote = async (noteId: string) => {
+    if (isGuest) {
+      setJarNotes((prev) => prev.filter((n) => n.id !== noteId));
+      return;
+    }
     if (!confirm('Bạn có chắc muốn xóa ghi chú này?')) return;
     try {
       await fetch(`/api/finance/notes?id=${noteId}`, { method: 'DELETE' });
@@ -196,15 +277,29 @@ export default function FinancePage() {
   };
 
   const handleUpdateIncome = async () => {
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để lưu bảng lương & thu nhập cá nhân!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     try {
       const salary = parseFloat(salaryInput) || 0;
       const bonus = parseFloat(bonusInput) || 0;
+      const monthYear = new Date().toISOString().slice(0, 7);
+
+      // Sync to Google Sheets & Java Backend
+      SyncClient.postAction({
+        action: 'updateIncome',
+        monthlySalary: salary,
+        bonusIncome: bonus,
+        monthYear,
+      });
 
       const res = await fetch('/api/finance/income', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          monthYear: new Date().toISOString().slice(0, 7),
+          monthYear,
           monthlySalary: salary,
           bonusIncome: bonus,
         }),
@@ -221,6 +316,11 @@ export default function FinancePage() {
 
   const handleSaveJar = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để tùy biến hũ tài chính!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     setJarErrorMsg('');
 
     const inputPct = parseFloat(jarPercentage) || 0;
@@ -275,6 +375,11 @@ export default function FinancePage() {
   };
 
   const handleDeleteJar = async (id: string, name: string) => {
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để quản lý hũ tài chính!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!confirm(`Bạn có chắc chắn muốn xóa Hũ tài chính "${name}" không?`)) return;
     try {
       await fetch(`/api/finance/jars?id=${id}`, { method: 'DELETE' });
@@ -285,6 +390,11 @@ export default function FinancePage() {
   };
 
   const handleAutoAllocate = async () => {
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để tự động phân bổ thu nhập thực tế!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!income || jars.length === 0) return;
     const totalInc = income.totalIncome;
 
@@ -317,9 +427,25 @@ export default function FinancePage() {
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isGuest) {
+      setAuthReason('Bạn đang ở chế độ Trải nghiệm Khách. Vui lòng Đăng nhập hoặc Đăng ký để ghi nhận nạp/rút tiền thực tế!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!selectedJarForTx || !txAmount) return;
 
     setIsSubmittingTx(true);
+
+    // Sync to Google Sheets & Java Backend
+    SyncClient.postAction({
+      action: 'addTransaction',
+      jarId: selectedJarForTx.id,
+      type: txType,
+      amount: parseFloat(txAmount),
+      description: txDescription || (txType === 'IN' ? 'Nạp tiền vào hũ' : 'Chi tiêu từ hũ'),
+      txDate: new Date().toISOString().slice(0, 10),
+    });
+
     try {
       const res = await fetch('/api/finance/transactions', {
         method: 'POST',
@@ -348,6 +474,11 @@ export default function FinancePage() {
   };
 
   const openCreateJarModal = () => {
+    if (isGuest) {
+      setAuthReason('Vui lòng Đăng nhập hoặc Tạo tài khoản để bắt đầu tạo các Hũ tài chính cá nhân!');
+      setIsAuthModalOpen(true);
+      return;
+    }
     const availablePct = Math.max(0, 100 - totalPercentage);
     
     if (totalPercentage >= 100) {
@@ -408,10 +539,38 @@ export default function FinancePage() {
           onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
           onOpenAddModal={() => { window.location.href = '/'; }}
           onOpenMotivationModal={() => { window.location.href = '/'; }}
+          isGuest={isGuest}
+          onOpenAuth={() => {
+            setAuthReason('Đăng nhập hoặc Đăng ký để lưu trữ tài chính cá nhân của riêng bạn');
+            setIsAuthModalOpen(true);
+          }}
+          currentUser={currentUser}
         />
 
         {/* Main Content Area */}
         <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto space-y-8">
+          
+          {/* Guest Mode Notice Strip */}
+          {isGuest && (
+            <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-500/25 rounded-2xl px-4 py-2.5 text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <Compass className="w-4 h-4 text-amber-500 flex-shrink-0 animate-pulse" />
+                <span className="truncate">
+                  Bạn đang ở <strong>Chế độ Khách (Guest Mode)</strong> — Dữ liệu 6 Hũ và dòng tiền đang là dữ liệu mẫu mô phỏng.
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setAuthReason('Tạo tài khoản hoặc đăng nhập để bắt đầu thiết lập 6 hũ tài chính của riêng bạn');
+                  setIsAuthModalOpen(true);
+                }}
+                className="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs shadow hover:bg-amber-400 transition-all flex items-center gap-1 flex-shrink-0"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Đăng nhập ngay</span>
+              </button>
+            </div>
+          )}
           
           {/* Header & Back Link */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1038,6 +1197,14 @@ export default function FinancePage() {
           </div>
         </div>
       )}
+
+      {/* Global Auth Modal for Guest Users */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+        reasonMessage={authReason}
+      />
 
     </div>
   );
