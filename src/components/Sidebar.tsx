@@ -19,6 +19,7 @@ interface SidebarProps {
   onLogout?: () => void;
   isGuest?: boolean;
   onOpenAuth?: () => void;
+  onOpenIntro?: () => void;
   currentUser?: { username: string; fullName: string } | null;
   className?: string;
 }
@@ -34,10 +35,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   isGuest = false,
   onOpenAuth,
+  onOpenIntro,
   currentUser,
   className = '',
 }) => {
   const router = useRouter();
+
+  const handleGoIntro = () => {
+    if (onOpenIntro) {
+      onOpenIntro();
+    } else {
+      router.push('/intro');
+    }
+  };
 
   const NAV_ITEMS = [
     { id: 'ALL', label: 'Tổng Quan Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
@@ -58,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Branding header */}
         <div 
           className="flex items-center gap-3 px-1 py-2 mb-4 cursor-pointer group"
-          onClick={() => router.push('/intro')}
+          onClick={handleGoIntro}
           title="Xem trang giới thiệu 3D"
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20 flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -136,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Intro 3D Button */}
           <button
-            onClick={() => router.push('/intro')}
+            onClick={handleGoIntro}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs sm:text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 transition-all mt-2 border border-amber-500/20"
           >
             <Compass className="w-5 h-5 text-amber-500" />

@@ -19,6 +19,7 @@ import { HabitDetailModal } from '@/components/HabitDetailModal';
 import { EmergencyMotivationModal } from '@/components/EmergencyMotivationModal';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { AuthModal } from '@/components/AuthModal';
+import { IntroShowcase } from '@/components/IntroShowcase';
 import { 
   Sparkles, CheckCircle2, PlusCircle, X, ArrowRight, 
   Compass, LogIn, AlertCircle, ShieldAlert 
@@ -32,6 +33,8 @@ import {
 
 export default function HomePage() {
   const router = useRouter();
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<{ username: string; fullName: string } | null>(null);
@@ -76,6 +79,7 @@ export default function HomePage() {
     if (isAuth === 'true') {
       setIsAuthenticated(true);
       setIsGuest(false);
+      setShowIntro(false);
       if (userRaw) {
         try {
           setCurrentUser(JSON.parse(userRaw));
@@ -85,12 +89,19 @@ export default function HomePage() {
       } else {
         setCurrentUser({ username: 'xu4ns0n', fullName: 'Nguyễn Xuân Sơn' });
       }
+    } else if (guestFlag === 'true') {
+      setIsAuthenticated(false);
+      setIsGuest(true);
+      setShowIntro(false);
+      loadMockGuestData();
     } else {
-      // Allow guest exploration seamlessly
+      // First visit -> Show Intro 3D Showcase
+      setShowIntro(true);
       setIsAuthenticated(false);
       setIsGuest(true);
       loadMockGuestData();
     }
+    setHasCheckedAuth(true);
   }, []);
 
   const loadMockGuestData = () => {
@@ -112,11 +123,11 @@ export default function HomePage() {
   const handleLogout = () => {
     localStorage.removeItem('bty_auth');
     localStorage.removeItem('bty_current_user');
-    localStorage.setItem('bty_guest', 'true');
+    localStorage.removeItem('bty_guest');
     document.cookie = 'bty_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     setIsAuthenticated(false);
-    setIsGuest(true);
-    loadMockGuestData();
+    setIsGuest(false);
+    setShowIntro(true);
   };
 
   const handleAuthSuccess = (username: string) => {
@@ -297,6 +308,35 @@ export default function HomePage() {
 
   const completedCount = habits.filter((h) => completedIds.includes(h.id)).length;
 
+  if (!hasCheckedAuth) {
+    return (
+      <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-white">
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 h-6 text-amber-500 animate-spin" />
+          <span className="text-sm font-bold">Đang tải Better Than Yesterday...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show Intro 3D Showcase for new visitors or when requested
+  if (showIntro) {
+    return (
+      <IntroShowcase
+        onStartGuest={() => {
+          localStorage.setItem('bty_guest', 'true');
+          setShowIntro(false);
+          setIsGuest(true);
+          loadMockGuestData();
+        }}
+        onAuthSuccess={(u) => {
+          setShowIntro(false);
+          handleAuthSuccess(u);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
@@ -323,6 +363,7 @@ export default function HomePage() {
           setAuthReason('Đăng nhập hoặc Đăng ký tài khoản để quản lý thói quen cá nhân của riêng bạn');
           setIsAuthModalOpen(true);
         }}
+        onOpenIntro={() => setShowIntro(true)}
         currentUser={currentUser}
       />
 
@@ -367,6 +408,10 @@ export default function HomePage() {
                   setIsAuthModalOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
+                onOpenIntro={() => {
+                  setShowIntro(true);
+                  setIsMobileMenuOpen(false);
+                }}
                 currentUser={currentUser}
               />
             </div>
@@ -389,6 +434,7 @@ export default function HomePage() {
             setAuthReason('Đăng nhập hoặc Đăng ký để lưu trữ thói quen cá nhân');
             setIsAuthModalOpen(true);
           }}
+          onOpenIntro={() => setShowIntro(true)}
           currentUser={currentUser}
         />
 

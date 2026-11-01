@@ -544,6 +544,7 @@ export default function FinancePage() {
             setAuthReason('Đăng nhập hoặc Đăng ký để lưu trữ tài chính cá nhân của riêng bạn');
             setIsAuthModalOpen(true);
           }}
+          onOpenIntro={() => { window.location.href = '/intro'; }}
           currentUser={currentUser}
         />
 

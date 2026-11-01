@@ -9,7 +9,15 @@ import {
 } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 
-export const IntroShowcase: React.FC = () => {
+interface IntroShowcaseProps {
+  onStartGuest?: () => void;
+  onAuthSuccess?: (username: string) => void;
+}
+
+export const IntroShowcase: React.FC<IntroShowcaseProps> = ({
+  onStartGuest,
+  onAuthSuccess,
+}) => {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authInitialTab, setAuthInitialTab] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
@@ -17,7 +25,11 @@ export const IntroShowcase: React.FC = () => {
   // Start exploration as Guest
   const handleStartGuestMode = () => {
     localStorage.setItem('bty_guest', 'true');
-    router.push('/');
+    if (onStartGuest) {
+      onStartGuest();
+    } else {
+      router.push('/');
+    }
   };
 
   const handleOpenFinanceGuest = () => {
@@ -30,8 +42,12 @@ export const IntroShowcase: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = () => {
-    router.push('/');
+  const handleSuccess = (username: string) => {
+    if (onAuthSuccess) {
+      onAuthSuccess(username);
+    } else {
+      router.push('/');
+    }
   };
 
   return (
@@ -345,7 +361,7 @@ export const IntroShowcase: React.FC = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
+        onSuccess={handleSuccess}
         initialTab={authInitialTab}
       />
 

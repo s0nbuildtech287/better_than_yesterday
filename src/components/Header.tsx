@@ -14,6 +14,7 @@ interface HeaderProps {
   onToggleMobileMenu?: () => void;
   isGuest?: boolean;
   onOpenAuth?: () => void;
+  onOpenIntro?: () => void;
   currentUser?: { username: string; fullName: string } | null;
 }
 
@@ -26,10 +27,19 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileMenu,
   isGuest = false,
   onOpenAuth,
+  onOpenIntro,
   currentUser,
 }) => {
   const router = useRouter();
   const todayFormatted = format(new Date(), 'dd/MM/yyyy');
+
+  const handleGoIntro = () => {
+    if (onOpenIntro) {
+      onOpenIntro();
+    } else {
+      router.push('/intro');
+    }
+  };
 
   return (
     <header className="w-full bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-3 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-20 transition-colors">
@@ -55,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
           <h2 
-            onClick={() => router.push('/intro')}
+            onClick={handleGoIntro}
             className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap truncate cursor-pointer hover:text-amber-500 transition-colors"
           >
             Better Than Yesterday
@@ -68,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
         
         {/* Intro 3D Shortcut */}
         <button
-          onClick={() => router.push('/intro')}
+          onClick={handleGoIntro}
           className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20 transition-all whitespace-nowrap"
         >
           <Compass className="w-3.5 h-3.5" />
