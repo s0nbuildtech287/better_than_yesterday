@@ -72,8 +72,10 @@ export default function HomePage() {
 
   // Check Auth & Guest Mode
   useEffect(() => {
+    // Clean up old guest flag so intro is always prioritized when not logged in
+    localStorage.removeItem('bty_guest');
+
     const isAuth = localStorage.getItem('bty_auth');
-    const guestFlag = localStorage.getItem('bty_guest');
     const userRaw = localStorage.getItem('bty_current_user');
 
     if (isAuth === 'true') {
@@ -89,13 +91,8 @@ export default function HomePage() {
       } else {
         setCurrentUser({ username: 'xu4ns0n', fullName: 'Nguyễn Xuân Sơn' });
       }
-    } else if (guestFlag === 'true') {
-      setIsAuthenticated(false);
-      setIsGuest(true);
-      setShowIntro(false);
-      loadMockGuestData();
     } else {
-      // First visit -> Show Intro 3D Showcase
+      // Whenever not logged in -> ALWAYS show Intro 3D Showcase first!
       setShowIntro(true);
       setIsAuthenticated(false);
       setIsGuest(true);

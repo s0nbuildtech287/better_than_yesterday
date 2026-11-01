@@ -24,7 +24,6 @@ export const IntroShowcase: React.FC<IntroShowcaseProps> = ({
 
   // Start exploration as Guest
   const handleStartGuestMode = () => {
-    localStorage.setItem('bty_guest', 'true');
     if (onStartGuest) {
       onStartGuest();
     } else {
@@ -33,7 +32,6 @@ export const IntroShowcase: React.FC<IntroShowcaseProps> = ({
   };
 
   const handleOpenFinanceGuest = () => {
-    localStorage.setItem('bty_guest', 'true');
     router.push('/tai-chinh');
   };
 
